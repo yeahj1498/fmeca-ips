@@ -1,0 +1,138 @@
+<svg viewBox="0 0 1180 1410" xmlns="http://www.w3.org/2000/svg" font-family="Consolas, 'SF Mono', 'Cascadia Code', monospace">
+  <defs>
+    <style>
+      .bg { fill: #eef1ef; }
+      .panel { fill: #ffffff; stroke: #dde3df; stroke-width: 1; }
+      .guide { stroke: #ccd5cf; stroke-width: 1.3; fill: none; }
+      .root { fill: #1a2422; font-weight: 700; font-size: 20px; }
+      .folder { fill: #1a2422; font-weight: 700; font-size: 15.5px; }
+      .folder-accent { fill: #2c6b73; font-weight: 700; font-size: 15.5px; }
+      .py { fill: #2f6b3f; font-size: 14.5px; }
+      .js { fill: #a8621f; font-size: 14.5px; }
+      .html { fill: #1f5b63; font-weight: 700; font-size: 14.5px; }
+      .pptx { fill: #a1392f; font-size: 14.5px; }
+      .data { fill: #55635e; font-size: 14.5px; }
+      .note { fill: #8b968f; font-size: 12.5px; font-style: italic; }
+      .grp-note { fill: #2c6b73; font-size: 12.5px; font-weight: 600; font-style: normal; }
+      .title { fill: #1a2422; font-size: 26px; font-weight: 700; font-family: Georgia, 'Times New Roman', serif; }
+      .subtitle { fill: #55635e; font-size: 14px; font-family: Arial, Helvetica, sans-serif; }
+      .swatch { rx: 3; }
+      .legend-txt { fill: #55635e; font-size: 12.5px; font-family: Arial, Helvetica, sans-serif; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1180" height="1410"/>
+
+  <!-- header -->
+  <text x="40" y="46" class="title">FMECA–IPS 연계체계 · 프로젝트 구조</text>
+  <text x="40" y="70" class="subtitle">fmeca_ips_scania/  —  SCANIA Component X 실측 데이터 기반 파이프라인 (2026-09-15)</text>
+
+  <!-- legend -->
+  <g transform="translate(40,86)">
+    <rect class="swatch" width="10" height="10" y="0" fill="#2f6b3f"/><text class="legend-txt" x="16" y="9">Python(.py)</text>
+    <rect class="swatch" width="10" height="10" y="0" x="130" fill="#a8621f"/><text class="legend-txt" x="146" y="9">JavaScript(.js)</text>
+    <rect class="swatch" width="10" height="10" y="0" x="280" fill="#1f5b63"/><text class="legend-txt" x="296" y="9">웹앱(.html)</text>
+    <rect class="swatch" width="10" height="10" y="0" x="400" fill="#a1392f"/><text class="legend-txt" x="416" y="9">발표자료(.pptx)</text>
+    <rect class="swatch" width="10" height="10" y="0" x="550" fill="#55635e"/><text class="legend-txt" x="566" y="9">데이터/문서(.csv·.json·.md·.pdf)</text>
+  </g>
+
+  <rect class="panel" x="20" y="112" width="1140" height="1278" rx="10"/>
+
+  <g transform="translate(48,146)" font-size="14.5px">
+    <text class="root" y="0">fmeca_ips_scania/</text>
+
+    <!-- root files -->
+    <text class="guide" x="8" y="-11"></text>
+    <g transform="translate(0,26)">
+      <text x="10" class="data">├── 01_dataset_card.md</text>
+      <text x="450" class="note">데이터셋 출처·라이선스·실측 판단 근거</text>
+    </g>
+    <g transform="translate(0,50)">
+      <text x="10" class="data">├── 02_domain_mapping.md</text>
+      <text x="450" class="note">필드 → FMECA 매핑, 대응 불가 항목</text>
+    </g>
+    <g transform="translate(0,74)">
+      <text x="10" class="data">├── 03_cleansing_report.md</text>
+      <text x="450" class="note">정제 6단계 처리 건수</text>
+    </g>
+    <g transform="translate(0,98)">
+      <text x="10" class="data">├── 04_fmeca_worksheet.csv</text>
+      <text x="450" class="note">O·S·D·RPN·RI 최종 워크시트</text>
+    </g>
+    <g transform="translate(0,122)">
+      <text x="10" class="data">├── 05_ips_impact.md</text>
+      <text x="450" class="note">RCM~ECP 파급 서술 + 한계</text>
+    </g>
+    <g transform="translate(0,146)">
+      <text x="10" class="data">└── mapping_dictionary.yaml</text>
+      <text x="450" class="note">필드 매핑 · 등급환산 규칙(기계가독)</text>
+    </g>
+
+    <!-- data_raw -->
+    <g transform="translate(0,186)">
+      <text x="10" class="folder-accent">├── data_raw/</text>
+      <text x="450" class="grp-note">실측 원본 · SCANIA Component X, CC BY 4.0</text>
+    </g>
+    <g transform="translate(0,210)"><text x="10" class="data">│   ├── train_operational_readouts.csv</text><text x="500" class="note">1.2GB · 1,122,452행</text></g>
+    <g transform="translate(0,234)"><text x="10" class="data">│   ├── train_tte.csv</text><text x="500" class="note">수리기록(time-to-event)</text></g>
+    <g transform="translate(0,258)"><text x="10" class="data">│   ├── train_specifications.csv</text><text x="500" class="note">차량 사양(Spec_0–7)</text></g>
+    <g transform="translate(0,282)"><text x="10" class="data">│   ├── validation_labels.csv</text></g>
+    <g transform="translate(0,306)"><text x="10" class="data">│   ├── validation_specifications.csv</text></g>
+    <g transform="translate(0,330)"><text x="10" class="data">│   ├── scania_paper.pdf / .txt</text><text x="500" class="note">arXiv 2401.15199</text></g>
+    <g transform="translate(0,354)"><text x="10" class="data">│   └── Scania_Component_X.pdf</text></g>
+
+    <!-- scripts -->
+    <g transform="translate(0,394)">
+      <text x="10" class="folder-accent">├── scripts/</text>
+      <text x="450" class="grp-note">파이프라인 코드</text>
+    </g>
+    <g transform="translate(0,418)"><text x="10" class="py">│   ├── 01_pipeline.py</text><text x="500" class="note">O·S·D 산출 (열화추세→D 포함)</text></g>
+    <g transform="translate(0,442)"><text x="10" class="py">│   ├── 02_lifecycle.py</text><text x="500" class="note">RCM·LORA·보급·IETM·ECP 연계</text></g>
+    <g transform="translate(0,466)"><text x="10" class="py">│   ├── 03_export_app_data.py</text><text x="500" class="note">웹앱용 JSON 추출</text></g>
+    <g transform="translate(0,490)"><text x="10" class="js">│   ├── 03_ips_feedback_linkage.js</text><text x="500" class="note">피드백 연계 로직(클라이언트)</text></g>
+    <g transform="translate(0,514)"><text x="10" class="py">│   └── 04_export_transform_sample.py</text><text x="500" class="note">원본→전처리 샘플 추출</text></g>
+
+    <!-- outputs -->
+    <g transform="translate(0,554)">
+      <text x="10" class="folder-accent">├── outputs/</text>
+      <text x="450" class="grp-note">계산 결과 (실측 기반, 재현 가능)</text>
+    </g>
+    <g transform="translate(0,578)"><text x="10" class="data">│   ├── cleansing_stats.json</text></g>
+    <g transform="translate(0,602)"><text x="10" class="data">│   ├── occurrence_stats.csv</text><text x="500" class="note">O</text></g>
+    <g transform="translate(0,626)"><text x="10" class="data">│   ├── severity_stats.csv</text><text x="500" class="note">S</text></g>
+    <g transform="translate(0,650)"><text x="10" class="data">│   ├── detection_stats.csv</text><text x="500" class="note">D</text></g>
+    <g transform="translate(0,674)"><text x="10" class="data">│   ├── risk_comparison.csv</text><text x="500" class="note">RPN vs RI</text></g>
+    <g transform="translate(0,698)"><text x="10" class="data">│   ├── lifecycle.csv / lifecycle.json</text><text x="500" class="note">RCM~ECP 산출</text></g>
+    <g transform="translate(0,722)"><text x="10" class="data">│   ├── vehicle_features.csv</text><text x="500" class="note">차량별 파생 피처</text></g>
+    <g transform="translate(0,746)"><text x="10" class="data">│   ├── spec2_case.csv / spec2_case.json</text><text x="500" class="note">보너스 사례(14.69배)</text></g>
+    <g transform="translate(0,770)"><text x="10" class="data">│   └── fmeca_worksheet.csv</text></g>
+
+    <!-- app_data -->
+    <g transform="translate(0,810)">
+      <text x="10" class="folder-accent">├── app_data/</text>
+      <text x="450" class="grp-note">웹앱 fetch용 JSON</text>
+    </g>
+    <g transform="translate(0,834)"><text x="10" class="data">│   ├── dataset.json</text></g>
+    <g transform="translate(0,858)"><text x="10" class="data">│   ├── cleansing.json</text></g>
+    <g transform="translate(0,882)"><text x="10" class="data">│   ├── fmeca.json</text></g>
+    <g transform="translate(0,906)"><text x="10" class="data">│   ├── events.json</text></g>
+    <g transform="translate(0,930)"><text x="10" class="data">│   ├── lifecycle.json</text></g>
+    <g transform="translate(0,954)"><text x="10" class="data">│   └── transform_sample.json</text><text x="500" class="note">원본→전처리 비교 샘플(2대)</text></g>
+
+    <!-- app -->
+    <g transform="translate(0,994)">
+      <text x="10" class="folder-accent">├── app/</text>
+    </g>
+    <g transform="translate(0,1018)"><text x="10" class="html">│   └── index.html</text><text x="500" class="note">FMECA-IPS 워크벤치 (11개 탭, 실시간 재계산)</text></g>
+
+    <!-- ppt -->
+    <g transform="translate(0,1058)">
+      <text x="10" class="folder-accent">└── ppt/</text>
+    </g>
+    <g transform="translate(0,1082)"><text x="10" class="py">    ├── build_deck.py</text><text x="500" class="note">python-pptx 빌드 스크립트</text></g>
+    <g transform="translate(0,1106)"><text x="10" class="pptx">    └── FMECA_IPS_SCANIA.pptx</text><text x="500" class="note">15슬라이드 발표자료</text></g>
+  </g>
+
+  <text x="40" y="1360" class="note" font-style="normal">총 6개 최상위 폴더 · 코드 7개(.py 5 · .js 1 · .html 1) · 문서 6개 · 산출데이터 26개 · 발표자료 1개</text>
+  <text x="40" y="1382" class="note" font-style="normal">웹 워크벤치: claude.ai/code/artifact/7c5a27c2-d582-48db-a00b-f4c421afe933</text>
+</svg>

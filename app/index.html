@@ -1,0 +1,954 @@
+<meta charset="utf-8">
+<title>SCANIA Component X FMECA-IPS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --bg:#eef1ef; --surface:#ffffff; --surface-2:#e3e8e4; --surface-3:#d9e0da;
+    --ink:#1a2422; --ink-dim:#55635e; --ink-faint:#8b968f;
+    --line:#ccd5cf; --line-soft:#dde3df;
+    --accent:#2c6b73; --accent-ink:#ffffff; --accent-soft:#dcebec;
+    --series-b:#8a6d3b; --series-b-soft:#f1e8d8;
+    --ok:#3c7a4f; --ok-bg:#e3f0e4; --ok-line:#b9d8bd;
+    --gap:#a85a22; --gap-bg:#f7ebdd; --gap-line:#e3c39c;
+    --crit:#a8342c; --crit-bg:#f8e2df;
+    --mono-bg:#eef2f0;
+    --shadow:0 1px 2px rgba(20,30,26,.06); --shadow-lg:0 6px 20px rgba(20,30,26,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#111514; --surface:#181e1c; --surface-2:#1f2624; --surface-3:#262e2b;
+      --ink:#e7ece9; --ink-dim:#a3afa9; --ink-faint:#6d7975;
+      --line:#323c38; --line-soft:#293330;
+      --accent:#7bc0c8; --accent-ink:#0d1f21; --accent-soft:#1c3236;
+      --series-b:#d2b378; --series-b-soft:#2c2517;
+      --ok:#7fc793; --ok-bg:#1b2a1f; --ok-line:#2f4a34;
+      --gap:#e3a065; --gap-bg:#2e2115; --gap-line:#4a3521;
+      --crit:#e2857b; --crit-bg:#3a1f1c;
+      --mono-bg:#1e2523;
+      --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 10px 30px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#111514; --surface:#181e1c; --surface-2:#1f2624; --surface-3:#262e2b;
+    --ink:#e7ece9; --ink-dim:#a3afa9; --ink-faint:#6d7975;
+    --line:#323c38; --line-soft:#293330;
+    --accent:#7bc0c8; --accent-ink:#0d1f21; --accent-soft:#1c3236;
+    --series-b:#d2b378; --series-b-soft:#2c2517;
+    --ok:#7fc793; --ok-bg:#1b2a1f; --ok-line:#2f4a34;
+    --gap:#e3a065; --gap-bg:#2e2115; --gap-line:#4a3521;
+    --crit:#e2857b; --crit-bg:#3a1f1c;
+    --mono-bg:#1e2523;
+    --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 10px 30px rgba(0,0,0,.45);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR','Noto Sans KR',-apple-system,sans-serif;line-height:1.55;font-size:14.5px;}
+  .mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+  a{color:var(--accent);}
+  code{font-family:'IBM Plex Mono',monospace;}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .banner{background:var(--gap-bg);border-bottom:1px solid var(--gap-line);color:var(--gap);font-size:12.5px;padding:7px 16px;text-align:center;font-weight:500;}
+
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:236px;flex:0 0 236px;background:var(--surface);border-right:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:16px;}
+  .brand .k{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;}
+  .brand .t{font-size:16.5px;font-weight:700;margin-top:4px;letter-spacing:-.01em;text-wrap:balance;}
+  .brand .s{font-size:11.5px;color:var(--ink-faint);margin-top:4px;}
+
+  nav.tabs{display:flex;flex-direction:column;gap:1px;}
+  nav.tabs .grp{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);padding:10px 10px 3px;}
+  nav.tabs button{all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;font-size:13px;color:var(--ink-dim);}
+  nav.tabs button .num{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-faint);width:16px;}
+  nav.tabs button:hover{background:var(--surface-2);color:var(--ink);}
+  nav.tabs button[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+  nav.tabs button[aria-current="page"] .num{color:var(--accent);}
+  .sidebar-foot{margin-top:auto;font-size:11px;color:var(--ink-faint);padding:8px;border-top:1px solid var(--line-soft);}
+
+  .main{flex:1;min-width:0;padding:32px 32px 80px;}
+  .content{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:32px;}
+
+  @media (max-width:820px){
+    .app{flex-direction:column;}
+    .sidebar{position:sticky;top:0;width:100%;flex:none;height:auto;flex-direction:row;align-items:center;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--line);padding:10px 12px;gap:12px;z-index:10;}
+    .brand{flex:0 0 auto;} .brand .s{display:none;}
+    nav.tabs{flex-direction:row;flex:0 0 auto;} nav.tabs .grp{display:none;}
+    .sidebar-foot{display:none;}
+    .main{padding:20px 14px 60px;}
+  }
+
+  section[data-panel]{display:flex;flex-direction:column;gap:20px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .eyebrow .seg{color:var(--ink-faint);}
+  h1{font-size:clamp(22px,3.2vw,30px);font-weight:700;margin:8px 0 0;text-wrap:balance;letter-spacing:-.01em;}
+  h2{font-size:19px;font-weight:700;margin:0;letter-spacing:-.005em;}
+  .lede{color:var(--ink-dim);font-size:14px;max-width:70ch;margin-top:8px;}
+  .lede b{color:var(--ink);font-weight:600;}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;}
+  .stat{background:var(--surface);padding:13px 15px;display:flex;flex-direction:column;gap:4px;}
+  .stat .n{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:21px;font-weight:600;}
+  .stat .l{font-size:11.3px;color:var(--ink-dim);}
+  .stat.accent .n{color:var(--accent);} .stat.ok .n{color:var(--ok);} .stat.gap .n{color:var(--gap);}
+
+  .sec-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .sec-num{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);border:1px solid var(--line);border-radius:5px;padding:1px 6px;}
+  .sec-desc{color:var(--ink-dim);font-size:13.2px;max-width:72ch;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);}
+  .card-pad{padding:17px 19px;}
+
+  /* ---------- flow diagram ---------- */
+  .flow-track{display:flex;flex-wrap:wrap;align-items:stretch;gap:2px 2px;justify-content:center;}
+  .flow-node{all:unset;cursor:pointer;flex:1 1 150px;max-width:190px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow);transition:transform .1s, box-shadow .1s;}
+  .flow-node:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);border-color:var(--accent);}
+  .flow-node .fn-step{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.05em;}
+  .flow-node .fn-title{font-weight:700;font-size:13.6px;color:var(--ink);}
+  .flow-node .fn-stat{font-size:11.6px;color:var(--ink-dim);line-height:1.4;}
+  .flow-node .fn-stat b{font-family:'IBM Plex Mono',monospace;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .flow-arrow{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:18px;flex:0 0 auto;width:22px;}
+  @media (max-width:920px){
+    .flow-track{flex-direction:column;align-items:stretch;}
+    .flow-node{max-width:none;}
+    .flow-arrow{transform:rotate(90deg);height:18px;}
+  }
+  .feedback-note{border:1px dashed var(--gap-line);background:var(--gap-bg);color:var(--gap);border-radius:10px;padding:10px 14px;font-size:12.4px;text-align:center;}
+
+  /* ---------- tables ---------- */
+  .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:var(--shadow);}
+  table{border-collapse:collapse;width:100%;font-size:12.8px;}
+  thead th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.3px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-dim);background:var(--surface-2);padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  thead th.sortable{cursor:pointer;user-select:none;}
+  thead th.sortable:hover{color:var(--ink);}
+  thead th .arrow{opacity:.4;margin-left:3px;}
+  thead th[data-active="1"] .arrow{opacity:1;color:var(--accent);}
+  tbody td{padding:9px 11px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--ink);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--surface-2);}
+  td.num,th.num{text-align:right;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+  .field code{font-family:'IBM Plex Mono',monospace;background:var(--mono-bg);border:1px solid var(--line-soft);border-radius:5px;padding:1px 6px;font-size:11.6px;color:var(--accent);}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;}
+  .gw-tag{display:inline-block;margin-left:5px;font-size:9.5px;font-weight:700;letter-spacing:.03em;color:var(--ink-dim);border:1px solid var(--line-soft);border-radius:4px;padding:1px 4px;vertical-align:middle;cursor:help;}
+  .pill.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line);}
+  .pill.gap{background:var(--gap-bg);color:var(--gap);border:1px solid var(--gap-line);}
+  .pill.crit{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit);}
+  .pill.neutral{background:var(--surface-2);color:var(--ink-dim);border:1px solid var(--line);}
+  .pill.accent{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);}
+
+  .gaps{display:flex;flex-direction:column;gap:1px;background:var(--gap-line);border:1px dashed var(--gap-line);border-radius:12px;overflow:hidden;}
+  .gap-card{background:var(--gap-bg);padding:13px 17px;display:grid;grid-template-columns:190px 1fr;gap:6px 20px;}
+  .gap-card .g-title{font-weight:600;font-size:13px;color:var(--gap);display:flex;align-items:flex-start;gap:8px;}
+  .gap-card .g-title .idx{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-faint);min-width:16px;}
+  .gap-body{display:flex;flex-direction:column;gap:5px;}
+  .gap-row{font-size:12.4px;color:var(--ink);}
+  .gap-row b{font-family:'IBM Plex Mono',monospace;font-size:9.8px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;margin-right:7px;}
+  @media (max-width:680px){.gap-card{grid-template-columns:1fr;}}
+
+  details.basis{border-top:1px solid var(--line-soft);}
+  details.basis summary{cursor:pointer;padding:9px 11px;font-size:12.2px;color:var(--accent);list-style:none;display:flex;align-items:center;gap:6px;}
+  details.basis summary::-webkit-details-marker{display:none;}
+  details.basis summary::before{content:"▸";display:inline-block;transition:transform .15s;}
+  details.basis[open] summary::before{transform:rotate(90deg);}
+  details.basis .basis-body{padding:0 13px 13px;font-size:12.2px;color:var(--ink-dim);display:grid;gap:6px;}
+  details.basis .basis-body b{color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-right:6px;}
+
+  .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:720px){.chart-row{grid-template-columns:1fr;}}
+  .chart-title{font-size:12.2px;font-weight:600;color:var(--ink-dim);margin-bottom:9px;}
+  .bars{display:flex;flex-direction:column;gap:9px;}
+  .bar-row{display:grid;grid-template-columns:52px 1fr 46px;align-items:center;gap:8px;font-size:12px;}
+  .bar-row .lab{font-family:'IBM Plex Mono',monospace;color:var(--ink-dim);}
+  .bar-track{background:var(--surface-2);border-radius:5px;height:9px;overflow:hidden;position:relative;}
+  .bar-fill{height:100%;border-radius:5px;}
+  .bar-row .val{font-family:'IBM Plex Mono',monospace;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);}
+  .legend{display:flex;gap:14px;font-size:11.4px;color:var(--ink-dim);margin-top:9px;flex-wrap:wrap;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+  .case-card{border:1px solid var(--gap-line);background:var(--gap-bg);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:13px;}
+  .case-card h3{margin:0;font-size:15px;color:var(--gap);}
+  .case-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:620px){.case-grid{grid-template-columns:1fr;}}
+  .case-box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+  .case-box .cb-label{font-size:10.6px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;}
+  .case-box .cb-value{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .case-box .cb-sub{font-size:11.6px;color:var(--ink-dim);margin-top:3px;}
+  .case-box.before .cb-value{color:var(--ink-dim);}
+  .case-box.after .cb-value{color:var(--crit);}
+
+  .steps{display:flex;flex-direction:column;}
+  .step{display:grid;grid-template-columns:38px 1fr;gap:13px;position:relative;padding-bottom:20px;}
+  .step:last-child{padding-bottom:0;}
+  .step-badge{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11.8px;font-weight:600;z-index:1;}
+  .step:not(:last-child)::before{content:"";position:absolute;left:18px;top:30px;bottom:-6px;width:1px;background:var(--line);}
+  .step-body{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 15px;box-shadow:var(--shadow);}
+  .step-title{font-weight:600;font-size:13.4px;margin-bottom:4px;}
+  .step-metrics{display:flex;flex-wrap:wrap;gap:7px 16px;margin-top:7px;}
+  .step-metric{font-size:11.6px;color:var(--ink-dim);}
+  .step-metric b{font-family:'IBM Plex Mono',monospace;color:var(--ink);font-weight:600;}
+
+  /* RCM/LORA/ECP decision cards */
+  .decision-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+  .decision-card{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;}
+  .dc-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  .dc-comp{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:8px;}
+  .dc-comp .cc{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);}
+  .dc-gates{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;}
+  .gate{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);}
+  .gate .g-ico{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+  .gate.yes .g-ico{background:var(--ok-bg);color:var(--ok);}
+  .gate.no .g-ico{background:var(--crit-bg);color:var(--crit);}
+  .dc-reason{font-size:12.6px;color:var(--ink-dim);}
+  .dc-foot{display:flex;gap:16px;flex-wrap:wrap;font-size:11.8px;color:var(--ink-faint);border-top:1px solid var(--line-soft);padding-top:9px;}
+  .dc-foot b{color:var(--ink-dim);font-weight:600;}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .toolbar select, .toolbar input{font-family:'IBM Plex Sans KR',sans-serif;font-size:12.8px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;}
+  .toolbar input{min-width:170px;}
+  .toolbar .count{font-size:12px;color:var(--ink-faint);margin-left:auto;}
+  .pager{display:flex;align-items:center;gap:10px;justify-content:flex-end;padding:9px 13px;font-size:12.2px;color:var(--ink-dim);}
+  .pager button{background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:5px 10px;cursor:pointer;color:var(--ink);}
+  .pager button:disabled{opacity:.4;cursor:not-allowed;}
+
+  .prose{font-size:13.4px;color:var(--ink);display:flex;flex-direction:column;gap:11px;max-width:76ch;}
+  .prose b{color:var(--ink);}
+  .prose .callout{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:11px 15px;color:var(--ink);font-size:13px;}
+
+  .ecp-card{border:1px solid var(--crit);background:var(--crit-bg);border-radius:12px;padding:15px 18px;display:flex;flex-direction:column;gap:8px;}
+  .ecp-card h4{margin:0;font-size:14px;color:var(--crit);}
+  .ecp-list{margin:0;padding-left:18px;font-size:12.6px;color:var(--ink);display:flex;flex-direction:column;gap:5px;}
+  .ecp-none{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:13px 16px;font-size:12.6px;color:var(--ink-dim);}
+
+  footer.page-foot{border-top:1px solid var(--line);padding-top:15px;font-size:11.5px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+</style>
+
+<div class="banner">✅ 이 앱의 O·S·D 원천 데이터는 실측(SCANIA Component X, CC BY 4.0)입니다 — 단, 공개를 위해 익명화·섭동 처리됨. 보급소요 파라미터(리드타임·단가 등)는 예시를 위한 가정치입니다.</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="k">FMECA → RCM → LORA → 보급 → IETM → 설계개선</div>
+      <div class="t">SCANIA Component X 연계체계</div>
+      <div class="s">실측 트럭 함대 데이터(CC BY 4.0)로 실증한 FMECA-IPS 연계 파이프라인</div>
+    </div>
+    <nav class="tabs" id="nav"></nav>
+    <div class="sidebar-foot">SCANIA Component X dataset · CC BY 4.0 · 실측(섭동처리)</div>
+  </aside>
+
+  <main class="main"><div class="content" id="content"></div></main>
+</div>
+
+<script>
+const SECTIONS = [
+  {id:"overview", num:"00", label:"개요 · 연계체계", grp:"시작"},
+  {id:"mapping", num:"01", label:"데이터 → FMECA 매핑", grp:"입력"},
+  {id:"cleansing", num:"02", label:"정제 파이프라인", grp:"입력"},
+  {id:"fmeca", num:"03", label:"FMECA 워크시트", grp:"분석"},
+  {id:"rcm", num:"04", label:"RCM 정비전략", grp:"연계"},
+  {id:"lora", num:"05", label:"LORA 수리수준", grp:"연계"},
+  {id:"supply", num:"06", label:"보급소요 산정", grp:"연계"},
+  {id:"ietm", num:"07", label:"IETM 연계", grp:"연계"},
+  {id:"ecp", num:"08", label:"설계개선(ECP)", grp:"연계"},
+  {id:"feedback", num:"09", label:"피드백 시뮬레이터", grp:"연계"},
+  {id:"events", num:"10", label:"사건 탐색기", grp:"참고"},
+  {id:"transform", num:"11", label:"원본→전처리 비교", grp:"참고"},
+];
+const GROUPS = ["시작", "입력", "분석", "연계", "참고"];
+
+const state = { dataset:null, cleansing:null, fmeca:null, events:null, lifecycle:null, transform:null,
+  evFilter:{group:"", repairOnly:"", q:""}, evSort:{key:"length_of_study_time_step", dir:-1}, evPage:1, evPageSize:20 };
+
+const GRADE_COLOR = g => g>=8 ? "var(--crit)" : g>=5 ? "var(--gap)" : "var(--ok)";
+const GRADE_PILL = g => g>=8 ? "crit" : g>=5 ? "gap" : "ok";
+const fmt = (n, d=2) => Number(n).toLocaleString("en-US", {minimumFractionDigits:d, maximumFractionDigits:d});
+const fmt0 = n => Number(n).toLocaleString("en-US", {maximumFractionDigits:0});
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const krw = n => (n/100000000).toFixed(2) + "억원";
+
+async function loadAll(){
+  const [dataset, cleansing, fmeca, events, lifecycle, transform] = await Promise.all([
+    fetch("data/dataset.json").then(r=>r.json()),
+    fetch("data/cleansing.json").then(r=>r.json()),
+    fetch("data/fmeca.json").then(r=>r.json()),
+    fetch("data/events.json").then(r=>r.json()),
+    fetch("data/lifecycle.json").then(r=>r.json()),
+    fetch("data/transform_sample.json").then(r=>r.json()),
+  ]);
+  state.dataset=dataset; state.cleansing=cleansing; state.fmeca=fmeca; state.events=events; state.lifecycle=lifecycle; state.transform=transform;
+}
+
+function buildNav(){
+  const nav = document.getElementById("nav");
+  let html = "";
+  let lastGrp = null;
+  for(const s of SECTIONS){
+    if(s.grp !== lastGrp){ html += `<div class="grp">${s.grp}</div>`; lastGrp = s.grp; }
+    html += `<button data-target="${s.id}"><span class="num">${s.num}</span>${s.label}</button>`;
+  }
+  nav.innerHTML = html;
+  nav.addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) location.hash = b.dataset.target; });
+}
+function setActive(id){ document.querySelectorAll("nav.tabs button").forEach(b=>{ if(b.dataset.target===id) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); }); }
+
+function router(){
+  const id = (location.hash||"#overview").slice(1);
+  const valid = SECTIONS.some(s=>s.id===id) ? id : "overview";
+  setActive(valid); render(valid); window.scrollTo({top:0});
+}
+function render(id){
+  const c = document.getElementById("content");
+  const R = {overview:renderOverview, mapping:renderMapping, cleansing:renderCleansing, fmeca:renderFmeca,
+             rcm:renderRCM, lora:renderLORA, supply:renderSupply, ietm:renderIETM, ecp:renderECP,
+             feedback:renderFeedback, events:renderEvents, transform:renderTransform};
+  c.innerHTML = R[id]();
+  if(id==="overview") wireOverview();
+  if(id==="feedback") wireFeedback();
+  if(id==="events") wireEvents();
+}
+
+function byGroup(){ return Object.fromEntries(state.fmeca.modes.map(m=>[m.group,m])); }
+
+/* ---------------- 00 OVERVIEW + FLOW ---------------- */
+function wireOverview(){
+  document.querySelectorAll(".flow-node, .feedback-note[data-go]").forEach(n=>{
+    n.addEventListener("click", ()=>{ location.hash = n.dataset.go; });
+  });
+}
+function flowDiagram(){
+  const lc = state.lifecycle.rows;
+  const stratCounts = {}; lc.forEach(r=>{ stratCounts[r.rcm_strategy] = (stratCounts[r.rcm_strategy]||0)+1; });
+  const loraCounts = {}; lc.forEach(r=>{ const k=r.lora_level.split("(")[0].split("+")[0].trim(); loraCounts[k]=(loraCounts[k]||0)+1; });
+  const totalDemand = lc.reduce((a,r)=>a+r.annual_demand_units,0);
+  const totalCost = lc.reduce((a,r)=>a+r.annual_cost_krw,0);
+  const slaCount = lc.filter(r=>r.ietm_sla).length;
+  const ecpCount = lc.filter(r=>r.ecp_candidate).length;
+
+  const nodes = [
+    {step:"IN", title:"실측 운용·계측데이터", go:"mapping", stat:`수리기록 ${fmt0(state.dataset.n_vehicles)}대 · 계측 ${fmt0(state.dataset.n_readout_rows)}행`},
+    {step:"03", title:"FMECA", go:"fmeca", stat:`형상군 <b>${state.fmeca.modes.length}</b>개 · O/S/D 실적 계산`},
+    {step:"04", title:"RCM", go:"rcm", stat:Object.entries(stratCounts).map(([k,v])=>`${k.replace(/\(.+\)/,"")} <b>${v}</b>`).join(" · ")},
+    {step:"05", title:"LORA", go:"lora", stat:Object.entries(loraCounts).map(([k,v])=>`${k} <b>${v}</b>`).join(" · ")},
+    {step:"06", title:"보급소요", go:"supply", stat:`연 <b>${fmt0(totalDemand)}</b>건(가정 함대) · ${krw(totalCost)}`},
+    {step:"07", title:"IETM 연계", go:"ietm", stat:`사전점검 SLA <b>${slaCount}</b>건 · 정기점검강화 <b>${lc.length-slaCount}</b>건`},
+    {step:"08", title:"설계개선", go:"ecp", stat:`ECP 후보 <b>${ecpCount}</b>/${lc.length}건`},
+  ];
+  const track = nodes.map((n,i)=>`
+    <button class="flow-node" data-go="${n.go}">
+      <span class="fn-step">${n.step}</span>
+      <span class="fn-title">${n.title}</span>
+      <span class="fn-stat">${n.stat}</span>
+    </button>${i<nodes.length-1 ? '<span class="flow-arrow">→</span>' : ''}`).join("");
+  return `<div class="flow-track">${track}</div>
+    <button class="feedback-note" data-go="feedback" style="cursor:pointer;width:100%;font-family:inherit;">↺ 피드백 루프 — 설계개선(ECP)이 반영되면 다음 FMECA 재평가의 O·D가 실제로 얼마나 바뀌고 RCM·보급소요가 어떻게 갱신되는지 &lt;09 피드백 시뮬레이터&gt;에서 직접 계산해보기 →</button>`;
+}
+function renderOverview(){
+  const d = state.dataset;
+  const grpMax = Math.max(...Object.values(d.groups));
+  const grpRows = Object.entries(d.groups).map(([c,n])=>`
+    <div class="bar-row"><span class="lab">${c}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${n/grpMax*100}%;background:var(--accent)"></div></div>
+      <span class="val">${n.toLocaleString()}대</span></div>`).join("");
+  return `
+  <section data-panel>
+    <div>
+      <div class="eyebrow">SCANIA Component X <span class="seg">·</span> 실측(CC BY 4.0, 익명화·섭동 처리) 데이터</div>
+      <h1>실측 정비·계측데이터 한 줄이 FMECA를 거쳐 RCM·LORA·보급·IETM·설계개선까지 이어지는 과정</h1>
+      <p class="lede"><b>${d.source}</b> — 실제 SCANIA 트럭 ${fmt0(d.n_vehicles)}대의 엔진계통 구성품("Component X") 수리기록·계측데이터를 사용했다. 단일 구성품 데이터라, 차량 사양(Spec_3) 4개 그룹을 FMECA 행으로 삼아 "같은 고장모드가 사양에 따라 어떻게 달라지는가"를 분석한다. 아래 흐름도의 각 단계를 클릭하면 해당 탭으로 이동한다.</p>
+    </div>
+
+    <div class="card card-pad">${flowDiagram()}</div>
+
+    <div class="stats">
+      <div class="stat accent"><span class="n">${fmt0(d.n_vehicles)}</span><span class="l">차량 (4개 사양군)</span></div>
+      <div class="stat"><span class="n">${fmt0(d.n_readout_rows)}</span><span class="l">계측 로그 행</span></div>
+      <div class="stat"><span class="n">${fmt0(d.total_exposure_time_steps)}</span><span class="l">총 노출 time-step</span></div>
+      <div class="stat gap"><span class="n">${fmt0(d.n_repairs)}</span><span class="l">수리(고장, 분석 단위)</span></div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="chart-title">사양군(Spec_3)별 차량 수</div>
+      <div class="bars">${grpRows}</div>
+      <div class="lede" style="margin-top:10px">계측 채널(8개 누적카운터): ${d.counters.map(c=>`<code>${c}</code>`).join(" ")} · 출처: <a href="${d.source_url}" target="_blank">${d.source_url}</a> · 라이선스: ${d.license}</div>
+    </div>
+  </section>`;
+}
+
+/* ---------------- 01 MAPPING ---------------- */
+function renderMapping(){
+  const rows = [
+    ["vehicle_id · Spec_3","specifications.csv","차량 식별자 · 사양(형상) 그룹","분석대상 식별키 · FMECA 행 구분 축","23,550대, 4개 범주(Cat0~Cat3)"],
+    ["length_of_study_time_step","train_tte.csv","구성품 장착 이후 경과 time-step","노출(exposure) 분모 — O = 수리건수 ÷ 노출","이미 장착시점부터 기록되어 좌측절단 없음"],
+    ["in_study_repair","train_tte.csv","Component X 교체/수리 여부(0/1)","고장모드 라벨 그 자체","2,272건 / 23,550건 (0.4% 양성)"],
+    ["time_step (readouts)","operational_readouts.csv","판독 시점(차량별 비동기)","정제 01단계 동기화 대상","차량당 5~303회, 중앙값 43회로 불균일"],
+    ["171_0…100_0 (8개 카운터)","operational_readouts.csv","누적형 계측 카운터(익명화)","S/D 관측 채널(증분율 z-점수)","96개 히스토그램 빈은 이번 실행에서 제외"],
+  ];
+  const gaps = [
+    ["부품 실명/규격(NSN급)","Component X 자체가 영업비밀로 익명화됨","실제 어떤 부품을 개선해야 하는지 알 수 없음 — 조달로 직결되지 않음"],
+    ["정비 소요공수·비용 실측치","논문에 투입인원·작업시간 필드 없음","보급소요의 리드타임·단가는 가정치 사용"],
+    ["임무·안전 영향 등급 / 동시고장 축","상용 트럭 데이터라 군사적 심각도 개념 부재, 단일 구성품이라 동시고장 개념도 성립 안 함","S(심각도)는 이상지수 단일 축만 산출"],
+    ["채널의 물리적 정의","8개 카운터·96개 히스토그램 빈 모두 익명화, 논문도 의미를 밝히지 않음","D 산출 시 '이상치 유무'만 판단 가능, 원인 설명 불가"],
+    ["운용부대/기후/임무유형","상용차량 데이터라 군 운용 변수 없음","O 층화는 차량 사양(Spec_3) 단위까지만 가능"],
+  ];
+  return `
+  <section data-panel>
+    <div>
+      <div class="sec-head"><span class="sec-num">01</span><h2>실측 데이터 → FMECA 매핑</h2></div>
+      <p class="sec-desc">SCANIA Component X 3개 파일의 필드가 FMECA 워크시트의 어느 칸으로 흘러가는지 명시한다. 실측 데이터임에도 여전히 남는 공백을 숨기지 않는다.</p>
+    </div>
+    <div class="stats">
+      <div class="stat ok"><span class="n">${rows.length}</span><span class="l">매핑 필드군</span></div>
+      <div class="stat gap"><span class="n">${gaps.length}</span><span class="l">실측 데이터에도 남는 공백</span></div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>데이터 필드</th><th>원본 로그</th><th>의미</th><th>FMECA 대응</th><th>비고</th></tr></thead>
+        <tbody>${rows.map(r=>`<tr>
+          <td class="field"><code>${esc(r[0])}</code></td>
+          <td class="mono" style="color:var(--ink-faint);font-size:11.4px">${esc(r[1])}</td>
+          <td>${esc(r[2])}</td>
+          <td style="color:var(--accent);font-weight:500">${esc(r[3])}</td>
+          <td style="color:var(--ink-dim);font-size:12px;max-width:30ch">${esc(r[4])}</td>
+        </tr>`).join("")}</tbody>
+      </table>
+    </div>
+    <div>
+      <div class="sec-desc" style="margin-bottom:10px">실측 데이터임에도 여전히 없는, 군 적용 시 추가로 필요한 항목</div>
+      <div class="gaps">${gaps.map((g,i)=>`
+        <div class="gap-card">
+          <div class="g-title"><span class="idx">${String(i+1).padStart(2,"0")}</span>${esc(g[0])}</div>
+          <div class="gap-body"><div class="gap-row"><b>공백</b>${esc(g[1])}</div><div class="gap-row"><b>영향</b>${esc(g[2])}</div></div>
+        </div>`).join("")}</div>
+    </div>
+  </section>`;
+}
+
+/* ---------------- 02 CLEANSING ---------------- */
+function renderCleansing(){
+  const cl = state.cleansing;
+  const steps = [
+    {n:"01", t:"동기화", d:"차량별로 비동기인 계측 판독을 vehicle_id+time_step 키로 정합 (공통 시간축 없음, 논문이 명시)", m:[
+      ["판독 행", fmt0(cl["01_sync"].operational_readouts_rows)],
+      ["차량당 판독(중앙값)", cl["01_sync"].readouts_per_vehicle_median+"회"],
+      ["차량당 판독(최소~최대)", cl["01_sync"].readouts_per_vehicle_min+"~"+cl["01_sync"].readouts_per_vehicle_max+"회"],
+    ]},
+    {n:"02", t:"드리프트 제거", d:"차량×채널별 증분율(rate) 계산 → 자기 자신의 과거 이력으로 z-정규화 → 8채널 |z| 평균을 이상지수로 사용", m:[
+      ["이상지수 산출", fmt0(cl["02_drift_removal"].rows_with_anomaly_score)+"행"],
+      ["음수 증분(물리적 불가능) 처리", cl["02_drift_removal"].negative_rate_values_clipped+"건"],
+    ]},
+    {n:"03", t:"구간 분할", d:"train_tte.csv가 이미 장착 이후 경과 time-step을 제공 — 별도 분할 불필요, 좌측절단 없음", m:[
+      ["수리 이벤트", cl["03_segmentation"].failure_events+"건"],
+      ["무고장(우측절단)", fmt0(cl["03_segmentation"].censored_vehicles)+"대"],
+    ]},
+    {n:"04", t:"결측치 / 이상치", d:"논문이 밝힌 채널당 1% 미만 결측률을 재확인, 이상지수>8 극단치 플래그", m:[
+      ["이상치 플래그", cl["04_missing_outliers"].outlier_rows_flagged+`건(${cl["04_missing_outliers"].outlier_rows_pct}%)`],
+    ]},
+    {n:"05", t:"코드 정합", d:"vehicle_id 체계 일관성, 중복행 검증", m:[
+      ["파일간 ID 불일치", (cl["05_code_reconciliation"].vehicles_in_readouts_not_in_tte+cl["05_code_reconciliation"].vehicles_in_tte_not_in_readouts)+"건"],
+      ["중복 (차량,time-step)", cl["05_code_reconciliation"].duplicate_vehicle_timestep_rows+"건"],
+    ]},
+    {n:"06", t:"라벨 정의", d:"수리(양성) vs 무고장(음성) 라벨 및 클래스 불균형비 산출", m:[
+      ["양성 라벨", cl["06_label_definition"].n_positive_events+"건"],
+      ["총 노출", fmt0(cl["06_label_definition"].n_total_exposure_time_steps)+" time-step"],
+      ["불균형비", cl["06_label_definition"].class_imbalance_per_1000_timesteps+"건/1000step"],
+    ]},
+  ];
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">02</span><h2>정제 파이프라인 (6단계)</h2></div>
+    <p class="sec-desc">순서 고정. 수치는 outputs/cleansing_stats.json 재계산 결과 그대로(실측 데이터).</p></div>
+    <div class="card card-pad"><div class="steps">${steps.map(s=>`
+      <div class="step"><div class="step-badge">${s.n}</div>
+        <div class="step-body"><div class="step-title">${s.t}</div>
+          <div style="color:var(--ink-dim);font-size:12.3px">${s.d}</div>
+          <div class="step-metrics">${s.m.map(([l,v])=>`<div class="step-metric">${l} <b>${v}</b></div>`).join("")}</div>
+        </div></div>`).join("")}</div></div>
+  </section>`;
+}
+
+/* ---------------- 03 FMECA ---------------- */
+function renderFmeca(){
+  const modes = state.fmeca.modes; const s2 = state.fmeca.spec2_case;
+  const maxRPN = Math.max(...modes.map(m=>m.RPN)); const maxRI = Math.max(...modes.map(m=>m.RI_weighted));
+  const reversed = modes.filter(m=>m.rank_changed);
+
+  const rows = modes.map(m=>`
+    <tr>
+      <td class="field"><code>${m.label}</code></td>
+      <td class="num">${fmt0(m.n_vehicles)}대</td>
+      <td class="num">${m.n_repairs}</td>
+      <td class="num"><span class="pill ${GRADE_PILL(m.O_grade)}">${m.O_grade}</span></td>
+      <td class="num"><span class="pill ${GRADE_PILL(m.S_grade)}">${m.S_grade}</span><span class="gw-tag" title="HAZOP guide word — 고장직전 신호가 자기 기준선 대비 어느 방향으로 벗어났는지">${m.hazop_guide_word}</span></td>
+      <td class="num"><span class="pill ${GRADE_PILL(m.D_grade)}">${m.D_grade}</span></td>
+      <td class="num mono">${m.RPN}</td><td class="num">#${m.rank_RPN}</td>
+      <td class="num mono">${fmt(m.RI_weighted,1)}</td><td class="num">#${m.rank_RI}</td>
+    </tr>
+    <tr><td colspan="10" style="padding:0"><details class="basis"><summary>산출 근거 — ${m.label}</summary>
+      <div class="basis-body"><div><b>O</b>${esc(m.O_basis)}</div><div><b>S</b>${esc(m.S_basis)}</div><div><b>D</b>${esc(m.D_basis)}</div>
+      <div><b>탐지 유의성</b>${m.significant ? `우연 수준(${fmt(m.expected_rate_if_random,1)}%) 대비 통계적으로 유의(p=${m.binom_p})` : `우연 수준(${fmt(m.expected_rate_if_random,1)}%)과 통계적으로 구분 안 됨(p=${m.binom_p}) — 실질적 미검출`}</div>
+      </div></details></td></tr>`).join("");
+
+  const gradeBars = modes.map(m=>`
+    <div class="bar-row"><span class="lab">${m.label}</span><div class="bar-track"><div class="bar-fill" style="width:${m.O_grade/10*100}%;background:${GRADE_COLOR(m.O_grade)}"></div></div><span class="val">O ${m.O_grade}</span></div>
+    <div class="bar-row"><span class="lab"></span><div class="bar-track"><div class="bar-fill" style="width:${m.S_grade/10*100}%;background:${GRADE_COLOR(m.S_grade)}"></div></div><span class="val">S ${m.S_grade}</span></div>
+    <div class="bar-row"><span class="lab"></span><div class="bar-track"><div class="bar-fill" style="width:${m.D_grade/10*100}%;background:${GRADE_COLOR(m.D_grade)}"></div></div><span class="val">D ${m.D_grade}</span></div>`).join("");
+  const rpnBars = modes.map(m=>`<div class="bar-row"><span class="lab">${m.label}</span><div class="bar-track"><div class="bar-fill" style="width:${m.RPN/maxRPN*100}%;background:var(--accent)"></div></div><span class="val">${m.RPN}</span></div>`).join("");
+  const riBars = modes.map(m=>`<div class="bar-row"><span class="lab">${m.label}</span><div class="bar-track"><div class="bar-fill" style="width:${m.RI_weighted/maxRI*100}%;background:var(--series-b)"></div></div><span class="val">${fmt(m.RI_weighted,1)}</span></div>`).join("");
+
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">03</span><h2>FMECA 워크시트</h2></div>
+    <p class="sec-desc">동일 고장모드(Component X 수리)를 4개 차량 사양군(Spec_3)으로 나눈 O·S·D 실적 계산치. 행을 펼치면 산출 근거와 탐지 유의성 검정 결과를 볼 수 있다.
+    <br><b>S(심각도) 주의</b>: 안전/가동중단/비용 같은 실제 고장결과 기록이 이 데이터셋에는 없어 진짜 심각도는 산출 불가 — 대신 고장 직전 신호이탈 강도를 대리지표로 쓰고, HAZOP guide word(<b>MORE</b>=평소보다 경고발생률 증가 / <b>LESS</b>=평소보다 감소)와 오차율(%, 기준선 대비 이탈 크기)로 그 대리지표가 무엇을 측정했는지 명시했다.</p></div>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>사양군</th><th class="num">차량수</th><th class="num">수리건수</th><th class="num">O</th><th class="num">S</th><th class="num">D</th><th class="num">RPN</th><th class="num">순위</th><th class="num">가중지수</th><th class="num">순위</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+
+    <div class="chart-row">
+      <div class="card card-pad"><div class="chart-title">사양군별 O·S·D 등급 (1–10)</div><div class="bars">${gradeBars}</div>
+        <div class="legend"><span><span class="swatch" style="background:var(--ok)"></span>1–4</span><span><span class="swatch" style="background:var(--gap)"></span>5–7</span><span><span class="swatch" style="background:var(--crit)"></span>8–10</span></div></div>
+      <div class="card card-pad"><div class="chart-title">RPN(곱셈) vs 가중합산지수</div><div class="bars">${rpnBars}</div><div style="height:8px"></div><div class="bars">${riBars}</div>
+        <div class="legend"><span><span class="swatch" style="background:var(--accent)"></span>RPN</span><span><span class="swatch" style="background:var(--series-b)"></span>RI</span></div></div>
+    </div>
+
+    <div class="prose"><div class="callout"><b>이번 실측 데이터에서는 순위 역전이 없다.</b> D등급이 4개 사양군 모두 동일(8)하게 나와 순위에 영향을 주지 못했고, O·S가 완전히 같은 순서로 정렬됐다 — 위험 요인들이 서로 강화하는 방향으로 실제로 작동한다는 뜻이다. 반면 4개 군 중 3개는 조기경보 탐지율이 우연 수준과 통계적으로 구분되지 않는다(§상세는 05_ips_impact.md) — 실측 데이터의 정직한 한계.</div></div>
+
+    <div class="case-card">
+      <h3>보너스 사례 — Spec_2 극단값 (${s2.top_group} vs ${s2.bottom_group})</h3>
+      <div class="prose">주축(Spec_3) 외에 다른 사양 변수(Spec_2, 21개 범주)에서는 훨씬 더 극단적인 격차가 실측으로 관측된다. 표본 200대 이상인 그룹만 비교한 결과다.</div>
+      <div class="case-grid">
+        <div class="case-box after"><div class="cb-label">${s2.top_group} (${s2.top_n}대)</div><div class="cb-value">${fmt(s2.top_rate,3)}<span style="font-size:12px;color:var(--ink-faint)"> /1000step</span></div><div class="cb-sub">최고 발생률</div></div>
+        <div class="case-box before"><div class="cb-label">${s2.bottom_group} (${s2.bottom_n}대)</div><div class="cb-value">${fmt(s2.bottom_rate,3)}<span style="font-size:12px;color:var(--ink-faint)"> /1000step</span></div><div class="cb-sub">최저 발생률 — <b>${s2.ratio}배</b> 차이</div></div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---------------- 04 RCM ---------------- */
+function renderRCM(){
+  const lc = state.lifecycle.rows; const fm = byGroup();
+  const cards = lc.map(r=>{
+    const m = fm[r.group];
+    const stratPill = r.rcm_strategy.includes("CBM") ? "ok" : r.rcm_strategy.includes("Hard") ? "gap" : "crit";
+    return `
+    <div class="decision-card">
+      <div class="dc-head">
+        <div class="dc-comp">${r.label} <span class="cc">Component X</span></div>
+        <span class="pill ${stratPill}">${r.rcm_strategy}</span>
+      </div>
+      <div class="dc-gates">
+        <div class="gate ${m.significant?'yes':'no'}"><span class="g-ico">${m.significant?'✓':'✕'}</span>이상신호 통계적 유의(p=${fmt(m.binom_p,4)})</div>
+        <div class="gate ${m.detection_rate_pct>=50?'yes':'no'}"><span class="g-ico">${m.detection_rate_pct>=50?'✓':'✕'}</span>탐지율 ${fmt(m.detection_rate_pct,1)}%</div>
+        <div class="gate ${m.S_grade>=5?'no':'yes'}"><span class="g-ico">${m.S_grade>=5?'!':'·'}</span>심각도 S=${m.S_grade}</div>
+      </div>
+      <div class="dc-reason">${esc(r.rcm_reason)}</div>
+      <div class="dc-foot"><span><b>우선순위</b> ${r.rcm_priority}</span><span><b>O등급</b> ${m.O_grade}</span><span><b>D등급</b> ${m.D_grade}</span></div>
+    </div>`;
+  }).join("");
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">04</span><h2>RCM 정비전략 결정</h2></div>
+    <p class="sec-desc">고전적 RCM 결정로직을 FMECA 산출값에 그대로 적용: <b>① 상태감시로 조기 검출 가능한가</b>(이상신호 유의성 + 탐지율≥50%) → 가능하면 상태기반정비(CBM). <b>② 불가능하면 심각도가 높은가</b> → 높으면 시간기준 예방정비, 낮으면 사후정비(Run-to-Failure). 실측 데이터 결과, 4개 사양군 모두 탐지율이 12%를 넘지 못해 CBM 단독 채택 군은 없다.</p></div>
+    <div class="decision-grid">${cards}</div>
+  </section>`;
+}
+
+/* ---------------- 05 LORA ---------------- */
+function renderLORA(){
+  const lc = state.lifecycle.rows; const a = state.lifecycle.assumptions;
+  const cards = lc.map(r=>`
+    <div class="decision-card">
+      <div class="dc-head"><div class="dc-comp">${r.label} <span class="cc">Component X</span></div><span class="pill accent">${r.repair_complexity} 복잡도</span></div>
+      <div class="dc-reason"><b style="color:var(--ink)">${esc(r.lora_level)}</b></div>
+      <div class="dc-reason">${esc(r.lora_reason)}</div>
+    </div>`).join("");
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">05</span><h2>LORA (수리수준분석)</h2></div>
+    <p class="sec-desc">동일 물리 구성품(Component X)이므로 수리복잡도는 계통 공통 가정치로 고정하고, 발생도(O등급)에 따라 창정비 우선순위·예비품 전진배치 여부만 사양군별로 차등화했다.</p></div>
+    <div class="decision-grid">${cards}</div>
+    <div class="card card-pad"><div class="chart-title">가정 파라미터</div>
+      <div class="prose" style="font-size:12.6px;color:var(--ink-dim)">
+        <div>수리복잡도(공통 가정): <b style="color:var(--ink)">${a.repair_complexity}</b></div>
+        <div>${a.note}</div>
+      </div></div>
+  </section>`;
+}
+
+/* ---------------- 06 SUPPLY ---------------- */
+function renderSupply(){
+  const lc = state.lifecycle.rows; const a = state.lifecycle.assumptions;
+  const totalDemand = lc.reduce((s,r)=>s+r.annual_demand_units,0);
+  const totalCost = lc.reduce((s,r)=>s+r.annual_cost_krw,0);
+  const rows = lc.map(r=>`<tr>
+    <td class="field"><code>${r.label}</code></td>
+    <td class="num mono">${fmt(r.annual_demand_units,2)}</td>
+    <td class="num mono">${r.lead_days}일</td>
+    <td class="num mono">${fmt(r.lead_time_demand,2)}</td>
+    <td class="num mono">${fmt(r.safety_stock,2)}</td>
+    <td class="num mono" style="font-weight:600;color:var(--accent)">${fmt(r.reorder_point,2)}</td>
+    <td class="num mono">${(r.unit_cost_krw/100000000).toFixed(2)}억</td>
+    <td class="num mono">${krw(r.annual_cost_krw)}</td>
+  </tr>`).join("");
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">06</span><h2>보급소요 산정</h2></div>
+    <p class="sec-desc">연간소요 = 실측 O등급 발생률 × 가정 함대 규모(${fmt0(a.assumed_fleet_size)}대, 4개 사양군 균등배분) × 가정 연간가동. 재주문점 = 리드타임수요 + 안전재고(서비스수준 95%, z=1.645). <b>발생률만 실측이고, 함대 규모·리드타임·단가는 이 방법론을 가상 군 정비단에 적용하는 예시를 위한 가정치다.</b></p></div>
+    <div class="stats">
+      <div class="stat accent"><span class="n">${fmt0(totalDemand)}</span><span class="l">연간 총 소요(건, 가정 함대)</span></div>
+      <div class="stat gap"><span class="n">${krw(totalCost)}</span><span class="l">연간 소요예산(가정)</span></div>
+      <div class="stat"><span class="n">${fmt0(a.assumed_fleet_size)}</span><span class="l">가정 함대 규모(대)</span></div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>사양군</th><th class="num">연간소요(건)</th><th class="num">조달리드타임</th><th class="num">리드타임수요</th><th class="num">안전재고</th><th class="num">재주문점</th><th class="num">단가</th><th class="num">연간예산</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </section>`;
+}
+
+/* ---------------- 07 IETM ---------------- */
+function renderIETM(){
+  const lc = state.lifecycle.rows;
+  const rows = lc.map(r=>`<tr>
+    <td class="field"><code>${r.label}</code></td>
+    <td class="field"><code>${r.warn_code}</code></td>
+    <td class="mono">${r.ietm_procedure}</td>
+    <td class="num">${r.ietm_sla ? `<span class="pill ok">${r.ietm_sla} time-step 이내</span>` : '<span class="pill crit">사전 SLA 없음</span>'}</td>
+    <td style="color:var(--ink-dim);font-size:12.2px">${esc(r.ietm_note)}</td>
+  </tr>`).join("");
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">07</span><h2>IETM 연계</h2></div>
+    <p class="sec-desc">이상지수 임계교차를 가상 경고코드(AX-*)로 취급해 절차서와 연동한다. D(검출도) 산출에서 얻은 평균 리드타임의 절반을 SLA로 설정 — 탐지 신호가 통계적으로 유의하지 않은 사양군은 '사전점검 SLA' 대신 정기점검 강화 절차만 정의한다.</p></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>사양군</th><th>가상 경고코드</th><th>연동 절차(가상 ID)</th><th class="num">SLA</th><th>비고</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </section>`;
+}
+
+/* ---------------- 08 ECP ---------------- */
+function renderECP(){
+  const lc = state.lifecycle.rows;
+  const cards = lc.map(r=>{
+    if(!r.ecp_candidate) return `<div class="ecp-none"><b style="color:var(--ink)">${r.label}</b> — 설계개선 트리거 없음. 현 RCM/LORA/보급 체계로 충분히 관리 가능.</div>`;
+    return `<div class="ecp-card"><h4>${r.label}</h4>
+      <ul class="ecp-list">${r.ecp_triggers.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`;
+  }).join("");
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">08</span><h2>설계개선(ECP) 트리거</h2></div>
+    <p class="sec-desc">트리거 규칙: (1) RPN 전체 1위 (2) 발생도 최고등급(O=10) (3) 이상신호가 우연 수준과 통계적으로 구분 안 됨. 이번 실측 결과 4개 사양군 모두 최소 1개 트리거가 발동했다 — 3개 군은 탐지 신호 자체가 약하다는 공통 이슈 때문이며, 이는 방법론이 만든 결과가 아니라 데이터의 정직한 결론이다.</p></div>
+    <div class="decision-grid">${cards}</div>
+  </section>`;
+}
+
+/* ---------------- 09 FEEDBACK SIMULATOR ---------------- */
+// re-derive RCM decision client-side with the SAME rule as scripts/02_lifecycle.py
+function deriveRCM(O,S,D,significant,detectRatePct){
+  if(significant && detectRatePct>=50){
+    return {strategy:"상태기반정비(CBM)", pill:"ok"};
+  }
+  if(S>=5) return {strategy:"시간기준 예방정비(Hard-Time)", pill:"gap"};
+  return {strategy:"사후정비(Run-to-Failure)", pill:"crit"};
+}
+// assumed intervention effect per trigger type -- documented, not measured
+const O_TRIGGER_RE = /(RPN 전체 1위|발생도 최고등급)/;
+const D_TRIGGER_RE = /(우연 수준과 통계적으로 구분 안 됨)/;
+const ASSUMED_O_GRADE_DELTA = 2;      // 근본설계 개선 가정 -> O등급 2단계 하향
+const ASSUMED_RATE_FACTOR = 0.60;     // 위와 짝을 이루는 발생률 감소 가정(약 40% 감소) -- O등급 변환과 별개로 보급소요 재계산에 직접 사용
+const ASSUMED_D_GRADE_DELTA = 3;      // 진단 알고리즘/센서 고도화 가정 -> D등급 3단계 개선
+const ASSUMED_NEW_DETECT_RATE = 60;   // 위 개선이 적용됐다고 가정할 때의 탐지율(%)
+
+// LORA re-derivation -- SAME threshold as scripts/02_lifecycle.py (o >= 8 -> 창정비 우선순위 상향)
+function deriveLORA(O){
+  if(O>=8) return {level:"창정비 우선순위 상향 + 예비품 전진배치", pill:"gap"};
+  return {level:"표준 2-Level (야전 LRU교환 + 창정비 모듈수리)", pill:"neutral"};
+}
+// IETM re-derivation -- SAME rule as scripts/02_lifecycle.py (유의 + 리드타임 있으면 사전점검 SLA, 아니면 정기점검 강화)
+function deriveIETM(significant, leadTimeH){
+  if(significant && leadTimeH){
+    return {proc:"사전점검 SLA 정의", sla:Math.round(leadTimeH*0.5*10)/10, pill:"ok"};
+  }
+  return {proc:"정기점검 강화 (사전 SLA 없음)", sla:null, pill:"neutral"};
+}
+// ECP 재평가 -- 개선 후에도 트리거가 남아있는지 (전체 1위 여부는 그룹 하나만으로는 재확인 불가하므로 O=10, 비유의성만 재검사)
+function deriveECP(O2, sig2){
+  const stillTrig = [];
+  if(O2>=10) stillTrig.push("발생도 여전히 최고등급");
+  if(!sig2) stillTrig.push("이상신호 여전히 비유의");
+  return {resolved: stillTrig.length===0, remaining: stillTrig};
+}
+
+function computeIntervention(m, r){
+  const applyO = O_TRIGGER_RE.test(r.ecp_triggers.join(" "));
+  const applyD = D_TRIGGER_RE.test(r.ecp_triggers.join(" "));
+  const O2 = applyO ? Math.max(1, m.O_grade - ASSUMED_O_GRADE_DELTA) : m.O_grade;
+  const D2 = applyD ? Math.max(1, m.D_grade - ASSUMED_D_GRADE_DELTA) : m.D_grade;
+  const sig2 = applyD ? true : m.significant;
+  const rate2Pct = applyD ? ASSUMED_NEW_DETECT_RATE : m.detection_rate_pct;
+  const S2 = m.S_grade; // 설계/검출 개선이 심각도 자체를 바꾼다고 가정하지 않음
+  const RPN2 = O2*S2*D2;
+  const RI2 = +(0.4*O2+0.4*S2+0.2*D2).toFixed(2);
+  const rate2 = applyO ? +(m.rate_per_1000*ASSUMED_RATE_FACTOR).toFixed(4) : m.rate_per_1000;
+  const rcmBefore = deriveRCM(m.O_grade, m.S_grade, m.D_grade, m.significant, m.detection_rate_pct||0);
+  const rcmAfter = deriveRCM(O2, S2, D2, sig2, rate2Pct||0);
+  // -- 연계: LORA / IETM / ECP도 새 O2·D2·sig2로 재평가 (RCM·보급소요와 동일한 입력을 공유)
+  const loraBefore = deriveLORA(m.O_grade);
+  const loraAfter = deriveLORA(O2);
+  const ietmBefore = deriveIETM(m.significant, m.mean_lead_time);
+  const ietmAfter = deriveIETM(sig2, m.mean_lead_time);
+  const ecpAfter = deriveECP(O2, sig2);
+  return {applyO, applyD, O2, D2, S2, RPN2, RI2, rate2, rcmBefore, rcmAfter,
+          loraBefore, loraAfter, ietmBefore, ietmAfter, ecpAfter};
+}
+function wireFeedback(){ /* comparison is shown before/after inline, nothing to wire */ }
+function renderFeedback(){
+  const lc = state.lifecycle.rows; const fm = byGroup();
+  const cards = lc.map(r=>{
+    const m = fm[r.group];
+    if(!r.ecp_candidate){
+      return `<div class="ecp-none"><b style="color:var(--ink)">${r.label}</b> — 설계개선 트리거가 없어 재계산할 것이 없다. 현재 O=${m.O_grade} S=${m.S_grade} D=${m.D_grade}, RPN=${m.RPN}을 그대로 유지.</div>`;
+    }
+    const iv = computeIntervention(m, r);
+    const maxRPN = Math.max(m.RPN, iv.RPN2, 1);
+    return `
+    <div class="decision-card">
+      <div class="dc-head">
+        <div class="dc-comp">${r.label}</div>
+        <span class="pill accent">적용 전 → 적용 후 비교</span>
+      </div>
+      <div class="dc-reason">적용 가정: ${iv.applyO?`<b style="color:var(--ink)">근본설계 개선</b>(O등급 -${ASSUMED_O_GRADE_DELTA}, 발생률 약 ${Math.round((1-ASSUMED_RATE_FACTOR)*100)}%↓ 가정)`:''}${iv.applyO&&iv.applyD?' · ':''}${iv.applyD?`<b style="color:var(--ink)">진단 알고리즘/센서 고도화</b>(D등급 -${ASSUMED_D_GRADE_DELTA}, 탐지율 ${ASSUMED_NEW_DETECT_RATE}%까지 개선 가정)`:''}</div>
+
+      <div class="chart-row" style="grid-template-columns:1fr 1fr;">
+        <div>
+          <div class="chart-title">등급 (현재 → 개선후)</div>
+          <div class="bars">
+            <div class="bar-row"><span class="lab">O</span><div class="bar-track"><div class="bar-fill" style="width:${m.O_grade/10*100}%;background:var(--ink-faint)"></div></div><span class="val">${m.O_grade}→${iv.O2}</span></div>
+            <div class="bar-row"><span class="lab">S</span><div class="bar-track"><div class="bar-fill" style="width:${m.S_grade/10*100}%;background:var(--ink-faint)"></div></div><span class="val">${m.S_grade}→${iv.S2}</span></div>
+            <div class="bar-row"><span class="lab">D</span><div class="bar-track"><div class="bar-fill" style="width:${m.D_grade/10*100}%;background:var(--ink-faint)"></div></div><span class="val">${m.D_grade}→${iv.D2}</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="chart-title">위험지수</div>
+          <div class="bars">
+            <div class="bar-row"><span class="lab">RPN</span><div class="bar-track"><div class="bar-fill" style="width:${m.RPN/maxRPN*100}%;background:var(--crit)"></div></div><span class="val">${m.RPN}</span></div>
+            <div class="bar-row"><span class="lab">RPN'</span><div class="bar-track"><div class="bar-fill" style="width:${iv.RPN2/maxRPN*100}%;background:var(--ok)"></div></div><span class="val">${iv.RPN2}</span></div>
+            <div class="bar-row"><span class="lab">RI</span><div class="bar-track"><div class="bar-fill" style="width:${m.RI_weighted/Math.max(m.RI_weighted,iv.RI2,1)*100}%;background:var(--crit)"></div></div><span class="val">${fmt(m.RI_weighted,1)}</span></div>
+            <div class="bar-row"><span class="lab">RI'</span><div class="bar-track"><div class="bar-fill" style="width:${iv.RI2/Math.max(m.RI_weighted,iv.RI2,1)*100}%;background:var(--ok)"></div></div><span class="val">${fmt(iv.RI2,1)}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-title" style="margin-top:2px">연계 재산정 — RCM · LORA · IETM · 보급소요 · ECP</div>
+      <div class="chart-row" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+        <div>
+          <div style="font-size:11px;color:var(--ink-faint);margin-bottom:5px">04 RCM</div>
+          <div style="font-size:11.5px;color:var(--ink-dim)">${r.rcm_strategy}</div>
+          <div style="font-size:11.5px;margin-top:3px"><span class="pill ${iv.rcmAfter.pill}">${iv.rcmAfter.strategy}</span>${iv.rcmAfter.strategy!==r.rcm_strategy?' <b style="color:var(--ok);font-size:11px">변경</b>':''}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink-faint);margin-bottom:5px">05 LORA</div>
+          <div style="font-size:11.5px;color:var(--ink-dim)">${iv.loraBefore.level}</div>
+          <div style="font-size:11.5px;margin-top:3px"><span class="pill ${iv.loraAfter.pill}">${iv.loraAfter.level}</span>${iv.loraAfter.level!==iv.loraBefore.level?' <b style="color:var(--ok);font-size:11px">변경</b>':''}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink-faint);margin-bottom:5px">07 IETM</div>
+          <div style="font-size:11.5px;color:var(--ink-dim)">${iv.ietmBefore.proc}</div>
+          <div style="font-size:11.5px;margin-top:3px"><span class="pill ${iv.ietmAfter.pill}">${iv.ietmAfter.proc}${iv.ietmAfter.sla?` (${iv.ietmAfter.sla} step)`:''}</span>${iv.ietmAfter.proc!==iv.ietmBefore.proc?' <b style="color:var(--ok);font-size:11px">변경</b>':''}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--ink-faint);margin-bottom:5px">08 ECP</div>
+          <div style="font-size:11.5px;color:var(--ink-dim)">기존: 후보</div>
+          <div style="font-size:11.5px;margin-top:3px"><span class="pill ${iv.ecpAfter.resolved?'ok':'crit'}">${iv.ecpAfter.resolved?'트리거 해소':'후보 유지: '+iv.ecpAfter.remaining.join(', ')}</span></div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--ink-dim)">06 보급소요: 발생률 ${fmt(m.rate_per_1000,4)}→<b style="color:var(--ink)">${fmt(iv.rate2,4)}</b>/1000step → 연간소요 <b style="color:var(--ink)">${fmt(r.annual_demand_units*(iv.rate2/m.rate_per_1000),2)}</b>건(기존 ${fmt(r.annual_demand_units,2)}건)</div>
+    </div>`;
+  }).join("");
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">09</span><h2>피드백 시뮬레이터 — ECP가 실제로 무엇을 바꾸는가</h2></div>
+    <p class="sec-desc">§08의 설계개선(ECP) 트리거를 <b>실제로 적용했다고 가정</b>했을 때 O/D 등급이 바뀌고, 그 새 등급이 <b>RCM(§04)·LORA(§05)·IETM(§07)·보급소요(§06)·ECP(§08) 재평가까지 동일한 입력을 공유하며 함께 재계산</b>되는 것을 보여준다 — RCM 하나만 바뀌는 게 아니라 연계된 5개 요소가 모두 같은 O'/D'를 참조한다. 개선 효과 자체(등급 하향폭, 발생률 감소율)는 실측이 아니라 이 시뮬레이션을 위한 가정치이며, 카드마다 명시했다.</p></div>
+    <div class="decision-grid">${cards}</div>
+    <div class="card card-pad">
+      <div class="chart-title">이게 왜 "환류(feedback)"인가</div>
+      <div class="prose" style="font-size:12.8px;color:var(--ink-dim)">
+        <div>실제 운용에서는 이 개선후 O'/D' 값이 <b style="color:var(--ink)">다음 분기 FMECA 재평가의 시작점</b>이 된다 — 즉 §03 FMECA 워크시트의 입력이 이번 계산 결과로 교체되고, RCM(§04)·LORA(§05)·보급소요(§06)·IETM(§07)도 그 위에서 다시 산정된다. 이 앱은 그 한 사이클(ECP→재계산)만 정적으로 보여주지만, 실제 체계라면 이 표가 매 재평가 주기마다 갱신되는 루프가 된다.</div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ---------------- 10 EVENTS ---------------- */
+function wireEvents(){
+  const grpSel = document.getElementById("ev-group"); const repSel = document.getElementById("ev-repair"); const q = document.getElementById("ev-q");
+  grpSel.addEventListener("change", ()=>{state.evFilter.group=grpSel.value; state.evPage=1; renderEventsTable();});
+  repSel.addEventListener("change", ()=>{state.evFilter.repairOnly=repSel.value; state.evPage=1; renderEventsTable();});
+  q.addEventListener("input", ()=>{state.evFilter.q=q.value.trim(); state.evPage=1; renderEventsTable();});
+  document.querySelectorAll("#ev-thead th.sortable").forEach(th=>th.addEventListener("click", ()=>{
+    const key = th.dataset.key;
+    if(state.evSort.key===key) state.evSort.dir *= -1; else {state.evSort.key=key; state.evSort.dir=1;}
+    renderEventsTable();
+  }));
+  document.getElementById("ev-prev").addEventListener("click", ()=>{ if(state.evPage>1){state.evPage--; renderEventsTable();} });
+  document.getElementById("ev-next").addEventListener("click", ()=>{ state.evPage++; renderEventsTable(); });
+  renderEventsTable();
+}
+function filteredEvents(){
+  const f = state.evFilter;
+  let rows = state.events.filter(e => (!f.group||e.Spec_3===f.group) && (f.repairOnly===""||String(e.in_study_repair)===f.repairOnly) && (!f.q||String(e.vehicle_id).includes(f.q)));
+  const {key,dir} = state.evSort;
+  rows = rows.slice().sort((a,b)=>{ let av=a[key],bv=b[key]; if(typeof av==="string"&&typeof bv==="string") return av.localeCompare(bv)*dir; return ((av>bv)-(av<bv))*dir; });
+  return rows;
+}
+function renderEventsTable(){
+  const rows = filteredEvents(); const pageSize = state.evPageSize;
+  const maxPage = Math.max(1, Math.ceil(rows.length/pageSize));
+  if(state.evPage>maxPage) state.evPage=maxPage;
+  const start=(state.evPage-1)*pageSize; const page = rows.slice(start,start+pageSize);
+  document.getElementById("ev-count").textContent = `${rows.length.toLocaleString()}건 표시 중 (샘플 ${state.events.length}건 — 전체 수리 2,272건 + 무고장 표본 3,000건)`;
+  document.getElementById("ev-tbody").innerHTML = page.map(e=>`<tr>
+      <td class="mono" style="color:var(--ink-faint)">${e.vehicle_id}</td>
+      <td>${e.group_label||e.Spec_3}</td>
+      <td class="num">${e.in_study_repair ? '<span class="pill crit">수리</span>' : '<span class="pill neutral">무고장</span>'}</td>
+      <td class="num mono">${fmt(e.length_of_study_time_step,1)}</td>
+      <td class="num mono">${e.severity_anomaly_at_end!=null?fmt(e.severity_anomaly_at_end,3):"–"}</td>
+      <td class="num mono">${e.first_flag_time_step!=null?fmt(e.first_flag_time_step,1):"–"}</td>
+      <td class="num">${e.detected_within_lookback?'<span class="pill ok">탐지</span>':'<span class="pill neutral">없음</span>'}</td>
+      <td class="num mono">${e.lead_time!=null?fmt(e.lead_time,1):"–"}</td>
+    </tr>`).join("");
+  document.querySelectorAll("#ev-thead th.sortable").forEach(th=>{
+    th.dataset.active = th.dataset.key===state.evSort.key ? "1":"0";
+    const arrow = th.querySelector(".arrow");
+    if(arrow) arrow.textContent = th.dataset.key===state.evSort.key ? (state.evSort.dir===1?"▲":"▼") : "▲";
+  });
+  document.getElementById("ev-page-label").textContent = `${state.evPage} / ${maxPage}`;
+  document.getElementById("ev-prev").disabled = state.evPage<=1;
+  document.getElementById("ev-next").disabled = state.evPage>=maxPage;
+}
+function renderEvents(){
+  const groups = [...new Set(state.events.map(e=>e.Spec_3))].sort();
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">09</span><h2>사건 탐색기</h2></div>
+    <p class="sec-desc">차량 단위 원자료 표본(전체 수리 차량 2,272대 + 무고장 차량 무작위 표본 3,000대). 사양군·수리여부로 필터링하고 열 헤더를 클릭해 정렬한다.</p></div>
+    <div class="toolbar">
+      <select id="ev-group"><option value="">전체 사양군</option>${groups.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>
+      <select id="ev-repair"><option value="">수리여부 전체</option><option value="1">수리(고장)만</option><option value="0">무고장만</option></select>
+      <input id="ev-q" type="text" placeholder="차량ID 검색…">
+      <span class="count" id="ev-count"></span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead id="ev-thead"><tr>
+        <th class="sortable" data-key="vehicle_id">차량ID<span class="arrow">▲</span></th>
+        <th class="sortable" data-key="Spec_3">사양군<span class="arrow">▲</span></th>
+        <th class="sortable" data-key="in_study_repair">수리여부<span class="arrow">▲</span></th>
+        <th class="sortable num" data-key="length_of_study_time_step">노출(time-step)<span class="arrow">▲</span></th>
+        <th class="sortable num" data-key="severity_anomaly_at_end">최종 이상지수<span class="arrow">▲</span></th>
+        <th class="sortable num" data-key="first_flag_time_step">최초 경보시점<span class="arrow">▲</span></th>
+        <th>탐지 여부</th>
+        <th class="sortable num" data-key="lead_time">리드타임<span class="arrow">▲</span></th>
+      </tr></thead>
+      <tbody id="ev-tbody"></tbody>
+    </table>
+    <div class="pager"><button id="ev-prev">← 이전</button><span id="ev-page-label" class="mono"></span><button id="ev-next">다음 →</button></div>
+    </div>
+  </section>`;
+}
+
+/* ---------------- 11 RAW -> PROCESSED TRANSFORM ---------------- */
+function transformSampleCard(sample, counters, zThresh){
+  const m = sample.mapped;
+  const ds = sample.derived_summary;
+  const mapRows = [
+    ["vehicle_id (원본)", sample.raw_mapping.vehicle_id, "장비(차량) 식별키", sample.vehicle_id],
+    ["Spec_3 (원본, 익명 범주)", sample.raw_mapping.Spec_3, "형상(FMECA 행) 라벨", m.group_label],
+    ["in_study_repair (원본, 0/1)", sample.raw_mapping.in_study_repair, "고장모드 라벨", m.failure_label],
+    ["length_of_study_time_step (원본)", fmt(sample.raw_mapping.length_of_study_time_step,1), "노출(exposure), O의 분모", fmt(m.exposure_time_step,1)+" time-step"],
+  ];
+  const mapTable = `<div class="table-wrap"><table>
+    <thead><tr><th>원본 필드 · 값</th><th></th><th>매핑된 의미 · 값</th></tr></thead>
+    <tbody>${mapRows.map(r=>`<tr>
+      <td class="field"><code>${r[0]}</code> = <b>${r[1]}</b></td>
+      <td class="num" style="color:var(--ink-faint)">→</td>
+      <td style="color:var(--accent);font-weight:500">${r[2]} = <b>${r[3]}</b></td>
+    </tr>`).join("")}</tbody></table></div>`;
+
+  const rawHead = counters.map(c=>`<th class="num">${c}</th>`).join("");
+  const rows = sample.raw_rows.map((rr,i)=>{
+    const pr = sample.processed_rows[i];
+    const rawCells = counters.map(c=>`<td class="num mono" style="font-size:10.5px;color:var(--ink-dim)">${rr.counters[c]!=null?fmt0(rr.counters[c]):'–'}</td>`).join("");
+    const az = pr.anomaly_score;
+    const azColor = az==null ? "var(--ink-faint)" : (az>zThresh ? "var(--crit)" : (az>1.5 ? "var(--gap)" : "var(--ok)"));
+    return `<tr>
+      <td class="num mono" style="font-weight:600">${fmt(rr.time_step,1)}</td>
+      ${rawCells}
+      <td class="num mono" style="font-weight:700;color:${azColor};border-left:1px solid var(--line)">${az!=null?fmt(az,2):'–'}</td>
+      <td class="num">${pr.flagged?'<span class="pill crit">경보</span>':''}</td>
+    </tr>`;
+  }).join("");
+
+  const bars = sample.processed_rows.map(pr=>{
+    const az = pr.anomaly_score;
+    const w = az!=null ? Math.min(100, az/4*100) : 0;
+    const color = az==null?"var(--ink-faint)":(az>zThresh?"var(--crit)":(az>1.5?"var(--gap)":"var(--ok)"));
+    return `<div class="bar-row"><span class="lab">${fmt(pr.time_step,0)}</span><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${color}"></div></div><span class="val">${az!=null?fmt(az,2):'–'}</span></div>`;
+  }).join("");
+
+  const outcome = ds.detected_within_lookback
+    ? `<span class="pill ok">탐지 성공</span> 최초 경보 t=${fmt(ds.first_flag_time_step,1)} → 리드타임 ${fmt(ds.lead_time,1)} time-step`
+    : `<span class="pill neutral">탐지 실패</span> anomaly_score가 ${zThresh}를 관측기간 중 넘지 못함(또는 60step 밖)`;
+
+  return `
+  <div class="card card-pad" style="display:flex;flex-direction:column;gap:14px;">
+    <div class="dc-head">
+      <div class="dc-comp">${m.group_label} · 차량 #${sample.vehicle_id} <span class="cc">(${ds.n_readouts}개 판독)</span></div>
+      ${outcome}
+    </div>
+    <div>
+      <div class="chart-title">① 원본 필드 → 매핑된 FMECA 입력</div>
+      ${mapTable}
+    </div>
+    <div>
+      <div class="chart-title">② 원본 계측값(8개 누적카운터) → 전처리 결과(이상지수), 같은 행</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th class="num">time_step</th>${rawHead}<th class="num" style="border-left:1px solid var(--line)">anomaly_score</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>
+    <div>
+      <div class="chart-title">③ 이상지수 추세 (임계값 ${zThresh})</div>
+      <div class="bars">${bars}</div>
+    </div>
+  </div>`;
+}
+function renderTransform(){
+  const t = state.transform;
+  const cards = t.samples.map(s => transformSampleCard(s, t.counters, t.z_thresh)).join("");
+  return `
+  <section data-panel>
+    <div><div class="sec-head"><span class="sec-num">11</span><h2>원본 → 전처리 데이터 직접 비교</h2></div>
+    <p class="sec-desc">§02 정제 파이프라인이 요약 통계만 보여줬다면, 여기서는 실제 차량 2대의 <b>원본 판독행 전부</b>를 골라 같은 행에서 원본 값과 전처리(증분율→자기기준 z→이상지수) 결과를 나란히 보여준다. 두 차량 모두 형상B(Cat1, 함대 최고위험군)의 실제 수리 차량이며, 하나는 조기경보가 성공했고 하나는 실패했다 — 같은 변환식이 실측에서 어떻게 다른 결과로 이어지는지 원자료 그대로 확인할 수 있다.</p></div>
+    ${cards}
+    <div class="lede">전체 파이프라인과 동일한 수식(§06)을 이 2대 차량에 대해서만 별도 재계산한 값이며, outputs/vehicle_features.csv의 같은 차량 값과 소수점까지 일치함을 확인했다.</div>
+  </section>`;
+}
+
+/* ---------------- boot ---------------- */
+(async function boot(){
+  buildNav();
+  document.getElementById("content").innerHTML = `<div class="lede">데이터 불러오는 중…</div>`;
+  try{
+    await loadAll();
+    window.addEventListener("hashchange", router);
+    router();
+  }catch(err){
+    document.getElementById("content").innerHTML = `<div class="lede" style="color:var(--crit)">데이터 로드 실패: ${esc(err.message)}</div>`;
+  }
+})();
+</script>

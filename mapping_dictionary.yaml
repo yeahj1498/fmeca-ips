@@ -1,0 +1,55 @@
+# mapping_dictionary.yaml -- SCANIA Component X -> FMECA/IPS 매핑 규칙
+dataset:
+  name: "SCANIA Component X dataset"
+  source_doi: "https://doi.org/10.5878/jvb5-d390"
+  paper: "Kharazian et al. 2025, Scientific Data, arXiv:2401.15199"
+  license: "CC BY 4.0"
+  accessed: "2026-09-15"
+  provenance: "real-world (perturbed/anonymized by publisher for confidentiality) -- see 01_dataset_card.md"
+
+tables:
+  train_specifications:
+    file: train_specifications.csv
+    key: vehicle_id
+    fields:
+      Spec_3: {maps_to: "차량 사양(형상) 그룹", fmeca_slot: "FMECA 행(고장모드 그룹) 구분 축", note: "4개 범주 Cat0-3, 이번 예시의 주축"}
+      Spec_2: {maps_to: "차량 사양 그룹(보조)", fmeca_slot: "보너스 사례(spec2_case.json)", note: "21개 범주, 최대/최소 그룹 14.69배 격차"}
+  train_tte:
+    file: train_tte.csv
+    key: vehicle_id
+    fields:
+      length_of_study_time_step: {maps_to: "구성품 장착 이후 경과 time_step", fmeca_slot: "노출(exposure), O의 분모"}
+      in_study_repair: {maps_to: "고장/교체 여부", fmeca_slot: "FMECA 고장모드 라벨 그 자체"}
+  train_operational_readouts:
+    file: train_operational_readouts.csv
+    key: [vehicle_id, time_step]
+    fields:
+      "171_0,666_0,427_0,837_0,309_0,835_0,370_0,100_0": {maps_to: "누적형 계측 카운터 8종(익명화)", fmeca_slot: "S/D 관측 채널(증분율 z-점수)"}
+    excluded_fields:
+      "167,272,291,158,459,397 (총 96개 히스토그램 빈)": "계산 단순화를 위해 이번 실행에서 제외"
+
+unmapped_fields:
+  - military_field: "부품 실명/규격(NSN급)"
+    reason: "Component X 자체가 영업비밀로 익명화"
+  - military_field: "정비 소요공수/비용 실측치"
+    reason: "논문에 관련 필드 없음 -- 보급소요 파라미터는 가정치 사용"
+  - military_field: "임무/안전 영향 등급"
+    reason: "상용 트럭 데이터라 군사적 심각도 개념 부재, 동시고장 등 2차 심각도 축도 단일 구성품이라 성립 불가"
+  - military_field: "채널의 물리적 정의"
+    reason: "8개 카운터, 96개 히스토그램 빈 모두 익명화 -- 논문도 의미를 밝히지 않음"
+
+grade_conversion:
+  O_occurrence:
+    method: "Spec_3 그룹별 (수리건수 / 노출시간) -> 1000 time-step당 발생률 -> log10 10구간 균등분할"
+    exposure_time_steps_total: 5660219.4
+    note: "표본이 매우 커서(최소그룹 1,871대·77건) 95% CI가 좁고 그룹 간 차이가 통계적으로 확고함 -- 이전 두 예시보다 통계적 근거가 강함"
+  S_severity_surrogate:
+    method: "수리 직전 마지막 3개 판독의 이상지수(8채널 증분율 z-점수 절대값 평균) 평균, 그룹 간 min-max -> 1~10"
+    caveat: "단일 구성품이라 동시고장 등 2차 축 없음 -- 앞선 두 예시보다 단순화된 단일축 심각도"
+  D_detection:
+    method: "이상지수(anomaly_score) > 2.5 최초 시점을 조기경보로 정의, lead_time = 수리시점 - 최초경보시점, 60 time-step 이내면 탐지로 인정. 우연수준은 무고장 차량의 관측종료 직전 60 time-step 내 오경보 발생률로 계산, 이항검정으로 유의성 검증"
+    key_finding: "4개 형상군 중 1개만 유의(p<0.05) -- 나머지 3개는 탐지율이 우연수준과 통계적으로 구분 안 됨. 실측 데이터의 정직한 한계로 문서화됨(이전 두 시뮬레이션 예시와 대조)"
+  risk_index:
+    RPN: "O_grade * S_grade * D_grade"
+    RI_weighted: "0.4*O_grade + 0.4*S_grade + 0.2*D_grade"
+    note: "이번 실행에서는 D등급이 4개 군 모두 8로 동일해 순위에 영향을 주지 못함 -- RPN/RI 모두 O,S 순서를 그대로 반영, 순위 역전 없음"

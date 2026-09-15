@@ -1,0 +1,25 @@
+{
+  "source": "SCANIA Component X dataset (Kharazian et al. 2025, Scientific Data)",
+  "source_url": "https://doi.org/10.5878/jvb5-d390",
+  "license": "CC BY 4.0",
+  "n_vehicles": 23550,
+  "n_repairs": 2272,
+  "n_readout_rows": 1122452,
+  "total_exposure_time_steps": 5660219.4,
+  "groups": {
+    "형상A": 14438,
+    "형상B": 5083,
+    "형상C": 2158,
+    "형상D": 1871
+  },
+  "counters": [
+    "171_0",
+    "666_0",
+    "427_0",
+    "837_0",
+    "309_0",
+    "835_0",
+    "370_0",
+    "100_0"
+  ]
+}

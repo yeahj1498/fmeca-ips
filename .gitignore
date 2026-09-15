@@ -1,0 +1,14 @@
+# Raw SCANIA Component X dataset -- large (1.2GB) and redownloadable from source.
+# See 01_dataset_card.md for the download URL / provenance.
+data_raw/
+
+# Local dev scratch (test symlink/copy of app_data for the web app's fetch() paths,
+# QA render exports) -- not deliverables, regenerate with the scripts if needed.
+app/data/
+flow2/view.html
+**/qa_render/
+**/qa_render2/
+
+# Python
+__pycache__/
+*.pyc

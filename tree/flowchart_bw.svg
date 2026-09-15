@@ -1,0 +1,315 @@
+<svg viewBox="0 0 1640 1750" xmlns="http://www.w3.org/2000/svg" font-family="'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif">
+  <defs>
+    <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#000000"/></marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#000000"/></marker>
+    <marker id="ak" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#333333"/></marker>
+    <marker id="aa" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#000000"/></marker>
+    <style>
+      .bg{fill:#ffffff;}
+      .panel{fill:#ffffff;stroke:#999999;stroke-width:1;}
+      .conn{stroke:#666666;stroke-width:1.6;fill:none;}
+      .arrow{stroke:#333333;stroke-width:1.8;fill:none;marker-end:url(#ak);}
+      .yesA{stroke:#000000;stroke-width:2;fill:none;marker-end:url(#ag);}
+      .noA{stroke:#000000;stroke-width:1.6;stroke-dasharray:5 4;fill:none;marker-end:url(#ar);}
+      .fbA{stroke:#000000;stroke-width:1.6;stroke-dasharray:1.5 4;stroke-linecap:round;fill:none;marker-end:url(#aa);}
+      .stage-lbl{fill:#000000;font-weight:700;font-size:16px;}
+      .src{fill:#f6f6f6;stroke:#aaaaaa;stroke-width:1;}
+      .proc{fill:#ffffff;stroke:#aaaaaa;stroke-width:1.2;}
+      .procTeal{fill:#eeeeee;stroke:#000000;stroke-width:1.3;}
+      .diamond{fill:#f0f0f0;stroke:#000000;stroke-width:1.4;}
+      .yesBox{fill:#ffffff;stroke:#000000;stroke-width:1.4;}
+      .noBox{fill:#f2f2f2;stroke:#000000;stroke-width:1.2;stroke-dasharray:4 3;}
+      .fbBox{fill:#f0f0f0;stroke:#000000;stroke-width:1.4;}
+      .tTitle{fill:#000000;font-size:14.5px;font-weight:700;}
+      .tSub{fill:#333333;font-size:11.5px;}
+      .tMono{font-family:Consolas,'Cascadia Mono',monospace;fill:#000000;font-size:13px;}
+      .tMonoSm{font-family:Consolas,'Cascadia Mono',monospace;fill:#000000;font-size:11.3px;}
+      .tDia{fill:#000000;font-size:12px;font-weight:700;}
+      .pill{fill:#000000;}
+      .pillTxt{fill:#ffffff;font-size:12.5px;font-weight:700;}
+      .legend{fill:#333333;font-size:12px;}
+      .foot{fill:#666666;font-size:12px;}
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1640" height="1750"/>
+
+  <text x="40" y="46" font-family="Georgia,'Times New Roman',serif" font-size="27" font-weight="700" fill="#000000">FMECA–IPS 전체 연계·산출 플로우차트</text>
+  <text x="40" y="70" class="tSub" font-size="13.5">SCANIA Component X 실측 데이터 — 원시데이터부터 설계개선 피드백까지 전 과정 (scripts/01_pipeline.py · 02_lifecycle.py)</text>
+
+  <!-- legend -->
+  <g transform="translate(40,88)" font-size="12">
+    <rect x="0" y="0" width="16" height="12" class="procTeal"/><text x="22" y="10" class="legend">처리/산출</text>
+    <polygon points="140,6 156,-2 172,6 156,14" class="diamond"/><text x="180" y="10" class="legend">분기 결정</text>
+    <line x1="270" y1="6" x2="310" y2="6" class="yesA"/><text x="316" y="10" class="legend">예(Yes, 실선)</text>
+    <line x1="410" y1="6" x2="450" y2="6" class="noA"/><text x="456" y="10" class="legend">아니오(No, 파선)</text>
+    <line x1="560" y1="6" x2="600" y2="6" class="fbA"/><text x="606" y="10" class="legend">피드백 루프(점선)</text>
+  </g>
+
+  <rect class="panel" x="20" y="118" width="1600" height="1612" rx="14"/>
+
+  <!-- ================= STAGE 1: 입력 데이터 ================= -->
+  <text x="60" y="156" class="stage-lbl">01 입력 데이터 (실측)</text>
+  <g transform="translate(0,173)">
+    <rect x="60" y="0" width="480" height="70" rx="8" class="src"/>
+    <text x="300" y="28" text-anchor="middle" class="tTitle">train_operational_readouts.csv</text>
+    <text x="300" y="48" text-anchor="middle" class="tSub">1,122,452행 · 8개 누적카운터</text>
+
+    <rect x="580" y="0" width="480" height="70" rx="8" class="src"/>
+    <text x="820" y="28" text-anchor="middle" class="tTitle">train_tte.csv</text>
+    <text x="820" y="48" text-anchor="middle" class="tSub">수리기록 (time-to-event)</text>
+
+    <rect x="1100" y="0" width="480" height="70" rx="8" class="src"/>
+    <text x="1340" y="28" text-anchor="middle" class="tTitle">train_specifications.csv</text>
+    <text x="1340" y="48" text-anchor="middle" class="tSub">차량 사양 Spec_0–7</text>
+  </g>
+  <path class="conn" d="M300,243 L300,262 L1340,262 L1340,243"/>
+  <path class="conn" d="M820,243 L820,262"/>
+  <path class="arrow" d="M820,262 L820,290" marker-end="url(#ak)"/>
+
+  <!-- ================= STAGE 2: 정제 ================= -->
+  <text x="60" y="316" class="stage-lbl">02 정제 파이프라인 (6단계, 순서 고정)</text>
+  <g transform="translate(0,332)" class="tMonoSm">
+    <!-- 6 boxes -->
+    <g transform="translate(86,0)">
+      <rect width="228" height="54" rx="7" class="proc"/><text x="114" y="23" text-anchor="middle" class="tTitle" font-size="12.5">01 동기화</text><text x="114" y="40" text-anchor="middle" class="tSub" font-size="10">vehicle_id+time_step 정합</text>
+    </g>
+    <text x="326" y="32" text-anchor="middle" fill="#666666" font-size="15">→</text>
+    <g transform="translate(334,0)">
+      <rect width="228" height="54" rx="7" class="proc"/><text x="114" y="23" text-anchor="middle" class="tTitle" font-size="12.5">02 드리프트 제거</text><text x="114" y="40" text-anchor="middle" class="tSub" font-size="10">증분율→자기기준 z</text>
+    </g>
+    <text x="574" y="32" text-anchor="middle" fill="#666666" font-size="15">→</text>
+    <g transform="translate(582,0)">
+      <rect width="228" height="54" rx="7" class="proc"/><text x="114" y="23" text-anchor="middle" class="tTitle" font-size="12.5">03 구간 분할</text><text x="114" y="40" text-anchor="middle" class="tSub" font-size="10">좌측절단 없음(TTE 제공)</text>
+    </g>
+    <text x="822" y="32" text-anchor="middle" fill="#666666" font-size="15">→</text>
+    <g transform="translate(830,0)">
+      <rect width="228" height="54" rx="7" class="proc"/><text x="114" y="23" text-anchor="middle" class="tTitle" font-size="12.5">04 결측/이상치</text><text x="114" y="40" text-anchor="middle" class="tSub" font-size="10">|anomaly|&gt;8 플래그</text>
+    </g>
+    <text x="1070" y="32" text-anchor="middle" fill="#666666" font-size="15">→</text>
+    <g transform="translate(1078,0)">
+      <rect width="228" height="54" rx="7" class="proc"/><text x="114" y="23" text-anchor="middle" class="tTitle" font-size="12.5">05 코드 정합</text><text x="114" y="40" text-anchor="middle" class="tSub" font-size="10">ID 일치성·중복 검증</text>
+    </g>
+    <text x="1318" y="32" text-anchor="middle" fill="#666666" font-size="15">→</text>
+    <g transform="translate(1326,0)">
+      <rect width="228" height="54" rx="7" class="proc"/><text x="114" y="23" text-anchor="middle" class="tTitle" font-size="12.5">06 라벨 정의</text><text x="114" y="40" text-anchor="middle" class="tSub" font-size="10">in_study_repair 0/1</text>
+    </g>
+  </g>
+  <path class="arrow" d="M820,386 L820,416"/>
+
+  <!-- ================= STAGE 3: 특징 계산 ================= -->
+  <text x="60" y="440" class="stage-lbl">03 차량별 특징 계산 — raw telemetry → 열화추세 → 이상지수</text>
+  <rect x="60" y="458" width="1520" height="112" rx="10" class="procTeal"/>
+  <g class="tMono" transform="translate(90,486)">
+    <text y="0">rate(t) = [ value(t) − value(t−1) ] / [ t − (t−1) ]  <tspan fill="#333333" font-family="Malgun Gothic" font-size="11.5">— 8개 누적카운터</tspan></text>
+    <text y="24">z(t) = [ rate(t) − μ ] / σ  <tspan fill="#333333" font-family="Malgun Gothic" font-size="11.5">— 그 차량 자신의 과거 이력(마지막 판독 제외) 기준</tspan></text>
+    <text y="48">anomaly(t) = mean( |z₁(t)|, …, |z₈(t)| )  <tspan fill="#333333" font-family="Malgun Gothic" font-size="11.5">— 8채널 종합 이상지수</tspan></text>
+    <text y="72">t* = min{ t : anomaly(t) &gt; 2.5 }   →   lead_time = 수리시점 − t*</text>
+  </g>
+  <path class="conn" d="M820,570 L820,600"/>
+  <path class="conn" d="M300,600 L1340,600"/>
+  <path class="arrow" d="M300,600 L300,616"/>
+  <path class="arrow" d="M820,600 L820,616"/>
+  <path class="arrow" d="M1340,600 L1340,616"/>
+
+  <!-- ================= STAGE 4: O / S / D ================= -->
+  <g transform="translate(0,618)">
+    <rect x="60" y="0" width="480" height="26" rx="6" class="pill"/><text x="300" y="18" text-anchor="middle" class="pillTxt">O 발생도(Occurrence)</text>
+    <rect x="580" y="0" width="480" height="26" rx="6" class="pill"/><text x="820" y="18" text-anchor="middle" class="pillTxt">S 심각도(Severity)</text>
+    <rect x="1100" y="0" width="480" height="26" rx="6" class="pill"/><text x="1340" y="18" text-anchor="middle" class="pillTxt">D 검출도(Detection)</text>
+
+    <rect x="60" y="32" width="480" height="190" rx="10" class="proc"/>
+    <rect x="580" y="32" width="480" height="190" rx="10" class="proc"/>
+    <rect x="1100" y="32" width="480" height="190" rx="10" class="proc"/>
+
+    <g class="tMonoSm" transform="translate(84,60)">
+      <text y="0">λ = 수리건수(k) / 노출시간 Σtime-step</text>
+      <text y="23">rate = λ × 1000  <tspan fill="#333333" font-family="Malgun Gothic">(1000step당 건수)</tspan></text>
+      <text y="46">O등급 = log10(rate) → 10구간 균등분할</text>
+      <text y="69" fill="#333333" font-family="Malgun Gothic" font-size="10.8">     (관측범위, 1~10 배정)</text>
+      <text y="94">95% CI = Poisson exact (χ² 분포)</text>
+      <text y="150" fill="#000000" font-weight="700">→ occurrence_stats.csv</text>
+    </g>
+
+    <g class="tMonoSm" transform="translate(604,60)">
+      <text y="0" fill="#000000" font-family="Malgun Gothic">대상: 수리 직전 마지막 3개 판독</text>
+      <text y="23">S_raw = mean(anomaly_score)</text>
+      <text y="46" fill="#000000" font-family="Malgun Gothic">그룹간 min–max 정규화</text>
+      <text y="69">S등급 = round(1 + 9 × S_raw)</text>
+      <text y="94" fill="#666666" font-family="Malgun Gothic" font-size="10.8">(단일 구성품 → 동시고장 축 없음)</text>
+      <text y="150" fill="#000000" font-weight="700">→ severity_stats.csv</text>
+    </g>
+
+    <g class="tMonoSm" transform="translate(1124,60)">
+      <text y="0">탐지율 = 탐지건/전체수리건 (0~60step)</text>
+      <text y="23" fill="#000000" font-family="Malgun Gothic">이항검정: 우연수준 대비 p&lt;0.05 유의성</text>
+      <text y="46">탐지력=0.6×탐지율+0.4×min(리드/60,1)</text>
+      <text y="69">D등급 = round(10 − 9 × 탐지력)</text>
+      <text y="94" fill="#666666" font-family="Malgun Gothic" font-size="10.8">(1~10 clip)</text>
+      <text y="150" fill="#000000" font-weight="700">→ detection_stats.csv</text>
+    </g>
+  </g>
+  <path class="conn" d="M300,840 L300,858 L1340,858 L1340,840"/>
+  <path class="conn" d="M820,840 L820,858"/>
+  <path class="arrow" d="M820,858 L820,886"/>
+
+  <!-- ================= STAGE 5: RPN/RI ================= -->
+  <text x="60" y="924" class="stage-lbl">04 위험지수 산출</text>
+  <rect x="340" y="940" width="960" height="76" rx="10" class="procTeal"/>
+  <text x="820" y="972" text-anchor="middle" class="tMono" font-size="17" font-weight="700">RPN = O × S × D</text>
+  <text x="820" y="998" text-anchor="middle" class="tMono" font-size="17" font-weight="700">RI = 0.4·O + 0.4·S + 0.2·D</text>
+  <path class="conn" d="M820,1016 L820,1050"/>
+
+  <!-- fan to 5 columns (orthogonal bus, no diagonal crossings) -->
+  <path class="conn" d="M204,1050 L1436,1050"/>
+  <path class="arrow" d="M204,1050 L204,1064"/>
+  <path class="arrow" d="M512,1050 L512,1064"/>
+  <path class="arrow" d="M820,1050 L820,1064"/>
+  <path class="arrow" d="M1128,1050 L1128,1064"/>
+  <path class="arrow" d="M1436,1050 L1436,1064"/>
+
+  <!-- ================= STAGE 6: 5 columns headers ================= -->
+  <g transform="translate(0,1066)">
+    <rect x="60" y="0" width="288" height="26" rx="6" class="pill"/><text x="204" y="18" text-anchor="middle" class="pillTxt">05 RCM</text>
+    <rect x="368" y="0" width="288" height="26" rx="6" class="pill"/><text x="512" y="18" text-anchor="middle" class="pillTxt">06 LORA</text>
+    <rect x="676" y="0" width="288" height="26" rx="6" class="pill"/><text x="820" y="18" text-anchor="middle" class="pillTxt">07 보급소요</text>
+    <rect x="984" y="0" width="288" height="26" rx="6" class="pill"/><text x="1128" y="18" text-anchor="middle" class="pillTxt">08 IETM</text>
+    <rect x="1292" y="0" width="288" height="26" rx="6" class="pill"/><text x="1436" y="18" text-anchor="middle" class="pillTxt">09 ECP</text>
+  </g>
+
+  <!-- RCM diamond -->
+  <g transform="translate(0,1096)">
+    <polygon points="204,0 324,42 204,84 84,42" class="diamond"/>
+    <text x="204" y="38" text-anchor="middle" class="tDia">유의(p&lt;.05) &amp;</text>
+    <text x="204" y="52" text-anchor="middle" class="tDia">탐지율≥50%?</text>
+    <path class="yesA" d="M150,66 L100,96 L100,108"/>
+    <path class="noA" d="M258,66 L308,96 L308,108"/>
+    <text x="112" y="94" class="tDia" fill="#000000" font-size="11">Y</text>
+    <text x="296" y="94" class="tDia" fill="#000000" font-size="11">N</text>
+    <rect x="34" y="108" width="132" height="86" rx="8" class="yesBox"/>
+    <text x="100" y="132" text-anchor="middle" font-size="11.5" font-weight="700" fill="#000000">CBM</text>
+    <text x="100" y="150" text-anchor="middle" font-size="10" fill="#333333">상태기반정비</text>
+    <text x="100" y="166" text-anchor="middle" font-size="9.5" fill="#333333">(모니터링으로</text>
+    <text x="100" y="180" text-anchor="middle" font-size="9.5" fill="#333333">개입 가능)</text>
+    <rect x="242" y="108" width="132" height="86" rx="8" class="noBox"/>
+    <text x="308" y="128" text-anchor="middle" font-size="10.5" font-weight="700" fill="#000000">◇S≥5?</text>
+    <text x="308" y="146" text-anchor="middle" font-size="9.3" fill="#333333">Y→Hard-Time</text>
+    <text x="308" y="160" text-anchor="middle" font-size="9.3" fill="#333333">(시간기준정비)</text>
+    <text x="308" y="176" text-anchor="middle" font-size="9.3" fill="#333333">N→RTF(사후정비)</text>
+  </g>
+
+  <!-- LORA diamond -->
+  <g transform="translate(308,1096)">
+    <polygon points="204,0 324,42 204,84 84,42" class="diamond"/>
+    <text x="204" y="46" text-anchor="middle" class="tDia">O ≥ 8 ?</text>
+    <path class="yesA" d="M150,66 L100,96 L100,108"/>
+    <path class="noA" d="M258,66 L308,96 L308,108"/>
+    <text x="112" y="94" class="tDia" fill="#000000" font-size="11">Y</text>
+    <text x="296" y="94" class="tDia" fill="#000000" font-size="11">N</text>
+    <rect x="34" y="108" width="132" height="86" rx="8" class="yesBox"/>
+    <text x="100" y="134" text-anchor="middle" font-size="10" font-weight="700" fill="#000000">창정비 우선상향</text>
+    <text x="100" y="150" text-anchor="middle" font-size="9.3" fill="#333333">+예비품</text>
+    <text x="100" y="164" text-anchor="middle" font-size="9.3" fill="#333333">전진배치</text>
+    <rect x="242" y="108" width="132" height="86" rx="8" class="noBox"/>
+    <text x="308" y="134" text-anchor="middle" font-size="10" font-weight="700" fill="#000000">표준 2-Level</text>
+    <text x="308" y="150" text-anchor="middle" font-size="9.3" fill="#333333">(야전교환+</text>
+    <text x="308" y="164" text-anchor="middle" font-size="9.3" fill="#333333">창정비모듈수리)</text>
+  </g>
+
+  <!-- 보급소요 process (no diamond) -->
+  <g transform="translate(676,1096)">
+    <rect x="0" y="10" width="288" height="70" rx="8" class="proc"/>
+    <text x="144" y="34" text-anchor="middle" class="tMonoSm">연간소요 = rate × 함대</text>
+    <text x="144" y="52" text-anchor="middle" class="tMonoSm">× 가동일(365×가정)</text>
+    <text x="144" y="70" text-anchor="middle" font-size="10" fill="#333333" font-family="Malgun Gothic">(발생률만 실측, 함대규모는 가정)</text>
+    <path class="arrow" d="M144,80 L144,106"/>
+    <rect x="0" y="108" width="288" height="86" rx="8" class="proc"/>
+    <text x="144" y="132" text-anchor="middle" class="tMonoSm">재주문점 = 리드타임수요</text>
+    <text x="144" y="150" text-anchor="middle" class="tMonoSm">+ 안전재고(z=1.645)</text>
+    <text x="144" y="170" text-anchor="middle" font-size="10" fill="#333333" font-family="Malgun Gothic">서비스수준 95%, Poisson 근사</text>
+  </g>
+
+  <!-- IETM diamond -->
+  <g transform="translate(924,1096)">
+    <polygon points="204,0 324,42 204,84 84,42" class="diamond"/>
+    <text x="204" y="38" text-anchor="middle" class="tDia">유의 &amp;</text>
+    <text x="204" y="52" text-anchor="middle" class="tDia">리드타임 존재?</text>
+    <path class="yesA" d="M150,66 L100,96 L100,108"/>
+    <path class="noA" d="M258,66 L308,96 L308,108"/>
+    <text x="112" y="94" class="tDia" fill="#000000" font-size="11">Y</text>
+    <text x="296" y="94" class="tDia" fill="#000000" font-size="11">N</text>
+    <rect x="34" y="108" width="132" height="86" rx="8" class="yesBox"/>
+    <text x="100" y="134" text-anchor="middle" font-size="10" font-weight="700" fill="#000000">사전점검 SLA</text>
+    <text x="100" y="150" text-anchor="middle" font-size="9.3" fill="#333333">SLA=리드타임</text>
+    <text x="100" y="164" text-anchor="middle" font-size="9.3" fill="#333333">×0.5</text>
+    <rect x="242" y="108" width="132" height="86" rx="8" class="noBox"/>
+    <text x="308" y="134" text-anchor="middle" font-size="10" font-weight="700" fill="#000000">정기점검 강화</text>
+    <text x="308" y="150" text-anchor="middle" font-size="9.3" fill="#333333">(사전 SLA</text>
+    <text x="308" y="164" text-anchor="middle" font-size="9.3" fill="#333333">없음)</text>
+  </g>
+
+  <!-- ECP diamond -->
+  <g transform="translate(1232,1096)">
+    <polygon points="204,0 324,42 204,84 84,42" class="diamond"/>
+    <text x="204" y="34" text-anchor="middle" class="tDia" font-size="10.5">RPN1위 / O=10 /</text>
+    <text x="204" y="48" text-anchor="middle" class="tDia" font-size="10.5">비유의 중 하나?</text>
+    <path class="yesA" d="M150,66 L100,96 L100,108"/>
+    <path class="noA" d="M258,66 L308,96 L308,108"/>
+    <text x="112" y="94" class="tDia" fill="#000000" font-size="11">Y</text>
+    <text x="296" y="94" class="tDia" fill="#000000" font-size="11">N</text>
+    <rect x="34" y="108" width="132" height="86" rx="8" class="yesBox"/>
+    <text x="100" y="132" text-anchor="middle" font-size="10" font-weight="700" fill="#000000">ECP 후보</text>
+    <text x="100" y="150" text-anchor="middle" font-size="9.3" fill="#333333">(설계개선</text>
+    <text x="100" y="164" text-anchor="middle" font-size="9.3" fill="#333333">필요)</text>
+    <rect x="242" y="108" width="132" height="86" rx="8" class="noBox"/>
+    <text x="308" y="132" text-anchor="middle" font-size="10" font-weight="700" fill="#000000">현행 유지</text>
+    <text x="308" y="150" text-anchor="middle" font-size="9.3" fill="#333333">(트리거</text>
+    <text x="308" y="164" text-anchor="middle" font-size="9.3" fill="#333333">없음)</text>
+  </g>
+
+  <!-- ================= STAGE 7: 피드백 ================= -->
+  <text x="60" y="1330" class="stage-lbl">10 피드백 루프 — 설계개선(ECP) 적용 시</text>
+  <rect x="240" y="1348" width="1160" height="94" rx="10" class="fbBox"/>
+  <text x="820" y="1378" text-anchor="middle" class="tMonoSm" font-size="13">ECP 후보 채택 가정 → O′ = O − 2 (발생률 ~40%↓ 가정)  ·  D′ = D − 3 (탐지율 60%까지 개선 가정)</text>
+  <text x="820" y="1400" text-anchor="middle" font-size="11.5" fill="#333333" font-family="Malgun Gothic">새 O′·D′가 §04(위험지수)·§05~09(RCM~ECP)에 그대로 재대입 → RPN′·RI′·RCM′·LORA′·보급소요′·IETM′이 실제 산식으로 재계산</text>
+  <text x="820" y="1420" text-anchor="middle" font-size="11" fill="#000000" font-family="Malgun Gothic">등급 변화폭 자체는 가정치, 재계산 산식 자체는 실제 코드(computeIntervention) 그대로</text>
+
+  <path class="fbA" d="M240,1395 L44,1395 L44,645 L58,645"/>
+  <text x="30" y="1020" fill="#000000" font-size="12" font-weight="700" transform="rotate(-90,30,1020)" text-anchor="middle">↺ 피드백 — 다음 FMECA 재평가 주기</text>
+
+  <!-- ================= 11 GLOSSARY (약어 설명) ================= -->
+  <text x="60" y="1470" class="stage-lbl">11 약어 설명 (Glossary)</text>
+  <rect x="60" y="1486" width="1520" height="176" rx="10" class="proc"/>
+  <g font-size="12.3" transform="translate(0,1486)">
+    <!-- column 1 -->
+    <g transform="translate(24,26)">
+      <text y="0"><tspan class="tMono" font-weight="700">O</tspan><tspan fill="#000000"> — 발생도(Occurrence), 수리건수÷노출시간 기반 등급</tspan></text>
+      <text y="27"><tspan class="tMono" font-weight="700">S</tspan><tspan fill="#000000"> — 심각도(Severity), 이상지수 크기 기반 등급</tspan></text>
+      <text y="54"><tspan class="tMono" font-weight="700">D</tspan><tspan fill="#000000"> — 검출도(Detection), 조기경보 탐지력 기반 등급</tspan></text>
+      <text y="81"><tspan class="tMono" font-weight="700">RPN</tspan><tspan fill="#000000"> — Risk Priority Number, O×S×D 곱셈 위험지수</tspan></text>
+      <text y="108"><tspan class="tMono" font-weight="700">RI</tspan><tspan fill="#000000"> — Risk Index, 0.4O+0.4S+0.2D 가중합산 위험지수</tspan></text>
+      <text y="135"><tspan class="tMono" font-weight="700">RCM</tspan><tspan fill="#000000"> — Reliability Centered Maintenance, 신뢰도중심정비</tspan></text>
+    </g>
+    <!-- column 2 -->
+    <g transform="translate(544,26)">
+      <text y="0"><tspan class="tMono" font-weight="700">LORA</tspan><tspan fill="#000000"> — Level Of Repair Analysis, 수리수준분석(야전/창정비)</tspan></text>
+      <text y="27"><tspan class="tMono" font-weight="700">IETM</tspan><tspan fill="#000000"> — Interactive Electronic Technical Manual, 전자식 기술교범</tspan></text>
+      <text y="54"><tspan class="tMono" font-weight="700">ECP</tspan><tspan fill="#000000"> — Engineering Change Proposal, 설계변경요청(설계개선)</tspan></text>
+      <text y="81"><tspan class="tMono" font-weight="700">CBM</tspan><tspan fill="#000000"> — Condition Based Maintenance, 상태기반정비</tspan></text>
+      <text y="108"><tspan class="tMono" font-weight="700">RTF</tspan><tspan fill="#000000"> — Run To Failure, 사후정비(고장까지 운용 후 조치)</tspan></text>
+      <text y="135"><tspan class="tMono" font-weight="700">Hard-Time</tspan><tspan fill="#000000"> — 시간기준 예방정비(정기 강제교체)</tspan></text>
+    </g>
+    <!-- column 3 -->
+    <g transform="translate(1064,26)">
+      <text y="0"><tspan class="tMono" font-weight="700">TTE</tspan><tspan fill="#000000"> — Time To Event, 사건(수리)까지 경과시간(train_tte.csv)</tspan></text>
+      <text y="27"><tspan class="tMono" font-weight="700">SLA</tspan><tspan fill="#000000"> — Service Level Agreement, 점검 착수 기한 약속</tspan></text>
+      <text y="54"><tspan class="tMono" font-weight="700">CI</tspan><tspan fill="#000000"> — Confidence Interval, 95% 신뢰구간(Poisson exact)</tspan></text>
+      <text y="81"><tspan class="tMono" font-weight="700">χ²</tspan><tspan fill="#000000"> — 카이제곱 분포, Poisson 정확신뢰구간 계산에 사용</tspan></text>
+      <text y="108"><tspan class="tMono" font-weight="700">z</tspan><tspan fill="#000000"> — Z-score, 자기 이력 평균 대비 표준화 편차</tspan></text>
+      <text y="135"><tspan class="tMono" font-weight="700">Spec_3</tspan><tspan fill="#000000"> — 차량 사양 그룹 변수(익명화된 범주형 필드)</tspan></text>
+    </g>
+  </g>
+
+  <text x="60" y="1700" class="foot">실제 코드: scripts/01_pipeline.py (O·S·D)  ·  scripts/02_lifecycle.py (RCM~ECP)  ·  app/index.html §09 피드백 시뮬레이터(computeIntervention)</text>
+  <text x="60" y="1722" class="foot">웹 워크벤치: claude.ai/code/artifact/7c5a27c2-d582-48db-a00b-f4c421afe933</text>
+</svg>
