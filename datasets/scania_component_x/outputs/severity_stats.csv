@@ -1,5 +1,5 @@
-group,mean_severity_anomaly,mean_signed_z,mean_error_rate_pct,hazop_guide_word,n_repairs_with_signal,S_score_raw,S_grade
-Cat0,0.916,0.072,78.4,MORE,1435,0.45588235294117696,5
-Cat1,1.027,0.16,128.8,MORE,608,1.0,10
-Cat2,0.84,-0.027,64.2,LESS,152,0.08333333333333343,2
-Cat3,0.823,0.118,73.8,MORE,77,0.0,1
+failure_mode,group,mean_severity_anomaly,mean_signed_z,mean_error_rate_pct,hazop_guide_word,n_repairs_with_signal,S_score_raw,S_grade
+component_x,Cat0,0.916,0.072,78.4,MORE,1435,0.45588235294117696,5
+component_x,Cat1,1.027,0.16,128.8,MORE,608,1.0,10
+component_x,Cat2,0.84,-0.027,64.2,LESS,152,0.08333333333333343,2
+component_x,Cat3,0.823,0.118,73.8,MORE,77,0.0,1

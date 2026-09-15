@@ -1,9 +1,12 @@
-{
-  "top_group": "Cat5",
-  "top_rate": 0.91766,
-  "top_n": 545,
-  "bottom_group": "Cat12",
-  "bottom_rate": 0.06245,
-  "bottom_n": 206,
-  "ratio": 14.69
-}
+[
+  {
+    "failure_mode": "component_x",
+    "top_group": "Cat5",
+    "top_rate": 0.91766,
+    "top_n": 545,
+    "bottom_group": "Cat12",
+    "bottom_rate": 0.06245,
+    "bottom_n": 206,
+    "ratio": 14.69
+  }
+]

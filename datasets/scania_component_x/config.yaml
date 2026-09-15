@@ -10,51 +10,67 @@ dataset:
   citation: "Kharazian et al., \"SCANIA Component X dataset: a real-world multivariate time series dataset for predictive maintenance\", Scientific Data (2025)"
   source_url: "https://doi.org/10.5878/jvb5-d390"
 
-# Paths are relative to this config file's own directory.
-files:
-  events: data_raw/train_tte.csv          # one row per asset: exposure time + failure label
-  readouts: data_raw/train_operational_readouts.csv   # long-format time series of counters
-  groups: data_raw/train_specifications.csv           # one row per asset: grouping attributes
-
-# Column-name mapping: dataset's real column names -> pipeline's semantic roles.
-columns:
-  asset_id: vehicle_id
-  exposure_time: length_of_study_time_step
-  failure_label: in_study_repair
-  readout_time: time_step
-  counters: ["171_0", "666_0", "427_0", "837_0", "309_0", "835_0", "370_0", "100_0"]
-  group_col: Spec_3            # primary grouping -> becomes the FMECA "failure mode" rows
-  bonus_group_col: Spec_2      # optional secondary grouping for an extra drill-down case
-
-# FMECA-row identity: maps each value of columns.group_col to a display label.
-groups:
-  Cat0: "형상A"
-  Cat1: "형상B"
-  Cat2: "형상C"
-  Cat3: "형상D"
-
-# Tunable thresholds used by the O/S/D computation. Defaults shown are what this
-# SCANIA run used; a different dataset's noise/failure characteristics may need
-# different values.
-params:
-  lookback_steps: 60             # detection lookback window, in readout_time units
-  z_thresh: 2.5                  # anomaly-score threshold that defines "flagged"
-  tail_readouts_for_severity: 3  # how many final readouts define the "at-repair" severity window
-  bonus_group_min_size: 200      # minimum asset count for a bonus_group_col group to be reported
-
-# IPS-linkage parameters that are NOT derivable from the dataset itself (documented
-# assumptions, clearly labeled as such everywhere they are used).
+# IPS 연계에 필요하지만 데이터셋 자체엔 없는 값들. value(가정값)와 rationale(왜 이
+# 값을 가정했는지)을 반드시 같이 적는다 -- 숫자만 있고 근거가 없는 가정치는 신뢰할 수
+# 없다는 게 이 프로젝트의 원칙이다. 웹앱 LORA/보급소요 탭과 fmeca_worksheet 주석에
+# 그대로 노출된다.
 assumptions:
-  lead_days: 75
-  unit_cost_krw: 28000000
-  repair_complexity: "중상"
-  fleet_size: 400
-  daily_op_timesteps: 0.7
-  note: "리드타임·단가·복잡도·함대 규모는 이 방법론을 가상 정비단에 적용하는 예시를 위한 가정치다. 발생률(O)만 실측."
+  lead_days:
+    value: 75
+    rationale: "정밀부품 국외조달 가정(엔진계통 부품은 통상 해외 제작사 발주 후 수송까지 장기 소요)"
+  unit_cost_krw:
+    value: 28000000
+    rationale: "엔진계통 주요 구성품(터보/분사계통급) 시중 단가대를 참고한 예시값 — 이 데이터셋에 실제 단가 필드 없음"
+  repair_complexity:
+    value: "중상"
+    rationale: "엔진 내부 접근이 필요한 수리로 가정 — LORA 수리수준 판단의 기준선"
+  fleet_size:
+    value: 400
+    rationale: "이 방법론을 적용해볼 가상 정비단 규모 — 실제 SCANIA 함대 크기(23,550대)가 아니라 예시 축소값"
+  daily_op_timesteps:
+    value: 0.7
+    rationale: "가상 함대의 하루 가동을 time_step 단위로 환산한 예시 비율 — 데이터셋 자체의 실제 시간 단위가 공개되지 않아 임의 설정"
 
-# Narrative copy shown in the web app. Free text, dataset-specific -- this is the
-# part that genuinely requires a human to write for each new dataset, since it
-# needs domain judgement about what the data can and cannot support.
+# 고장모드 목록. 이 데이터셋은 구성품이 하나(Component X, 익명화)뿐이라 고장모드도
+# 하나지만, 스키마 자체는 여러 개를 지원한다 -- 각 고장모드가 자기만의 files/columns
+# (센서 종류·컬럼명)를 가질 수 있다. 실제 체계처럼 엔진/변속기/유압계통이 서로 다른
+# 센서를 쓴다면 failure_modes 아래에 항목을 추가하면 된다.
+failure_modes:
+  - id: component_x
+    label: "Component X"
+    cause: "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐."
+
+    # 이 config.yaml 파일 기준 상대경로
+    files:
+      events: data_raw/train_tte.csv
+      readouts: data_raw/train_operational_readouts.csv
+      groups: data_raw/train_specifications.csv
+
+    # 데이터셋의 실제 컬럼명 -> 파이프라인의 의미역할 매핑
+    columns:
+      asset_id: vehicle_id
+      exposure_time: length_of_study_time_step
+      failure_label: in_study_repair
+      readout_time: time_step
+      counters: ["171_0", "666_0", "427_0", "837_0", "309_0", "835_0", "370_0", "100_0"]
+      group_col: Spec_3            # 주 그룹핑 -> FMECA "고장모드" 행이 됨
+      bonus_group_col: Spec_2      # 선택: 보조 드릴다운용 그룹핑
+
+    # group_col의 각 값 -> 화면표시 라벨
+    groups:
+      Cat0: "형상A"
+      Cat1: "형상B"
+      Cat2: "형상C"
+      Cat3: "형상D"
+
+    params:
+      lookback_steps: 60             # 검출 룩백 윈도, readout_time 단위
+      z_thresh: 2.5                  # 이상치 플래그 z 임계값
+      tail_readouts_for_severity: 3  # 심각도용 "고장직전" 판독 개수
+      bonus_group_min_size: 200      # bonus_group_col 그룹 최소 표본수
+
+# 웹앱에 노출되는 서술형 텍스트. 자유 텍스트, 데이터셋마다 달라야 함 -- 이 부분은
+# 사람이 도메인 판단으로 직접 써야 하는 부분이라 일부러 자동화하지 않았다.
 content:
   banner: "이 앱의 O·S·D 원천 데이터는 실측({name}, {license})입니다 — 단, 공개를 위해 익명화·섭동 처리됨. 보급소요 파라미터(리드타임·단가 등)는 예시를 위한 가정치입니다."
   overview_lede: "{name} — 실제 SCANIA 트럭 {n_vehicles:,}대의 엔진계통 구성품(\"{component_label}\") 수리기록·계측데이터를 사용했다. 단일 구성품 데이터라, 차량 사양({group_col}) {n_groups}개 그룹을 FMECA 행으로 삼아 \"같은 고장모드가 사양에 따라 어떻게 달라지는가\"를 분석한다. 아래 흐름도의 각 단계를 클릭하면 해당 탭으로 이동한다."
@@ -72,3 +88,4 @@ content:
     - [ "임무·안전 영향 등급 / 동시고장 축", "상용 트럭 데이터라 군사적 심각도 개념 부재, 단일 구성품이라 동시고장 개념도 성립 안 함", "S(심각도)는 이상지수 단일 축만 산출(HAZOP guide word+오차율로 대리 표시)" ]
     - [ "채널의 물리적 정의", "8개 카운터·96개 히스토그램 빈 모두 익명화, 논문도 의미를 밝히지 않음", "D 산출 시 '이상치 유무'만 판단 가능, 원인 설명 불가" ]
     - [ "운용부대/기후/임무유형", "상용차량 데이터라 군 운용 변수 없음", "O 층화는 차량 사양(group_col) 단위까지만 가능" ]
+    - [ "근본 고장원인(failure cause)", "카운터·구성품 모두 익명화되어 원인 추적 불가", "각 고장모드의 cause 필드가 '산출 불가'로 명시됨 — 통계적 신호만 있고 왜 고장났는지는 모름" ]

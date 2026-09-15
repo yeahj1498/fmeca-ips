@@ -1,14 +1,37 @@
 {
-  "assumptions": {
-    "lead_days": 75,
-    "unit_cost_krw": 28000000,
-    "repair_complexity": "중상",
-    "assumed_fleet_size": 400,
-    "service_level": "95%(z=1.645)",
-    "note": "리드타임·단가·복잡도·함대 규모는 이 방법론을 가상 정비단에 적용하는 예시를 위한 가정치다. 발생률(O)만 실측."
-  },
+  "assumptions": [
+    {
+      "name": "lead_days",
+      "value": 75,
+      "rationale": "정밀부품 국외조달 가정(엔진계통 부품은 통상 해외 제작사 발주 후 수송까지 장기 소요)"
+    },
+    {
+      "name": "unit_cost_krw",
+      "value": 28000000,
+      "rationale": "엔진계통 주요 구성품(터보/분사계통급) 시중 단가대를 참고한 예시값 — 이 데이터셋에 실제 단가 필드 없음"
+    },
+    {
+      "name": "repair_complexity",
+      "value": "중상",
+      "rationale": "엔진 내부 접근이 필요한 수리로 가정 — LORA 수리수준 판단의 기준선"
+    },
+    {
+      "name": "fleet_size",
+      "value": 400,
+      "rationale": "이 방법론을 적용해볼 가상 정비단 규모 — 실제 SCANIA 함대 크기(23,550대)가 아니라 예시 축소값"
+    },
+    {
+      "name": "daily_op_timesteps",
+      "value": 0.7,
+      "rationale": "가상 함대의 하루 가동을 time_step 단위로 환산한 예시 비율 — 데이터셋 자체의 실제 시간 단위가 공개되지 않아 임의 설정"
+    }
+  ],
+  "service_level": "95%(z=1.645)",
   "rows": [
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat1",
       "label": "형상B(Spec_3=Cat1)",
       "rcm_strategy": "시간기준 예방정비(Hard-Time)",
@@ -16,7 +39,7 @@
       "rcm_reason": "조기신호는 통계적으로 유의(p=0.0039)하지만 탐지율이 11.8%로 낮아 상태감시만으로는 불충분 — 심각도 S=10 높음 → 정기 교체 검토",
       "significant_detection": true,
       "lora_level": "창정비 우선순위 상향 + 예비품 전진배치",
-      "lora_reason": "이 형상군의 발생률이 함대 상위권(O=10) → 창정비 대기열 우선순위 상향, 야전 교환용 예비품을 부대 인근에 전진배치",
+      "lora_reason": "이 그룹의 발생률이 함대 상위권(O=10) → 창정비 대기열 우선순위 상향, 야전 교환용 예비품을 부대 인근에 전진배치",
       "repair_complexity": "중상",
       "annual_demand_units": 12.63,
       "lead_days": 75,
@@ -25,17 +48,20 @@
       "reorder_point": 5.24,
       "annual_cost_krw": 353550680.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-SCX-Cat1-01 (이상신호 대응 점검절차)",
+      "ietm_procedure": "IETM-SCX-component_x-Cat1-01 (이상신호 대응 점검절차)",
       "ietm_sla": 12.0,
-      "ietm_note": "이상지수 임계교차(AX-Cat1) 후 12.0 time-step 이내 점검 착수 (평균 리드타임 24.1의 절반을 SLA로 설정)",
-      "warn_code": "AX-Cat1",
+      "ietm_note": "이상지수 임계교차(AX-component_x-Cat1) 후 12.0 time-step 이내 점검 착수 (평균 리드타임 24.1의 절반을 SLA로 설정)",
+      "warn_code": "AX-component_x-Cat1",
       "ecp_triggers": [
-        "RPN 전체 1위(RPN=800) → 이 형상군 구성품 우선 재설계/대체부품 검토",
+        "RPN 전체 1위(RPN=800) → 이 그룹 구성품 우선 재설계/대체부품 검토",
         "발생도 최고등급(O=10) → 근본 설계원인 분석 필요"
       ],
       "ecp_candidate": true
     },
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat0",
       "label": "형상A(Spec_3=Cat0)",
       "rcm_strategy": "시간기준 예방정비(Hard-Time)",
@@ -43,7 +69,7 @@
       "rcm_reason": "조기신호가 우연 수준과 통계적으로 구분 안 됨(p=0.1242) — 심각도 S=5 높음 → 정기 교체 검토",
       "significant_detection": false,
       "lora_level": "창정비 우선순위 상향 + 예비품 전진배치",
-      "lora_reason": "이 형상군의 발생률이 함대 상위권(O=9) → 창정비 대기열 우선순위 상향, 야전 교환용 예비품을 부대 인근에 전진배치",
+      "lora_reason": "이 그룹의 발생률이 함대 상위권(O=9) → 창정비 대기열 우선순위 상향, 야전 교환용 예비품을 부대 인근에 전진배치",
       "repair_complexity": "중상",
       "annual_demand_units": 10.58,
       "lead_days": 75,
@@ -52,16 +78,19 @@
       "reorder_point": 4.6,
       "annual_cost_krw": 296239986.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-SCX-Cat0-02 (정기점검 강화 절차)",
+      "ietm_procedure": "IETM-SCX-component_x-Cat0-02 (정기점검 강화 절차)",
       "ietm_sla": null,
       "ietm_note": "유의한 사전 이상신호 없음 — 사전점검 절차 정의 근거 부족, 정기점검 주기 강화로 대체",
-      "warn_code": "AX-Cat0",
+      "warn_code": "AX-component_x-Cat0",
       "ecp_triggers": [
         "이상지수 조기신호가 우연 수준과 통계적으로 구분 안 됨(p=0.12419) → 진단 알고리즘/센서 고도화 필요"
       ],
       "ecp_candidate": true
     },
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat2",
       "label": "형상C(Spec_3=Cat2)",
       "rcm_strategy": "사후정비(Run-to-Failure)",
@@ -78,16 +107,19 @@
       "reorder_point": 3.56,
       "annual_cost_krw": 207787930.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-SCX-Cat2-02 (정기점검 강화 절차)",
+      "ietm_procedure": "IETM-SCX-component_x-Cat2-02 (정기점검 강화 절차)",
       "ietm_sla": null,
       "ietm_note": "유의한 사전 이상신호 없음 — 사전점검 절차 정의 근거 부족, 정기점검 주기 강화로 대체",
-      "warn_code": "AX-Cat2",
+      "warn_code": "AX-component_x-Cat2",
       "ecp_triggers": [
         "이상지수 조기신호가 우연 수준과 통계적으로 구분 안 됨(p=0.19205) → 진단 알고리즘/센서 고도화 필요"
       ],
       "ecp_candidate": true
     },
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat3",
       "label": "형상D(Spec_3=Cat3)",
       "rcm_strategy": "사후정비(Run-to-Failure)",
@@ -104,10 +136,10 @@
       "reorder_point": 2.49,
       "annual_cost_krw": 124851608.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-SCX-Cat3-02 (정기점검 강화 절차)",
+      "ietm_procedure": "IETM-SCX-component_x-Cat3-02 (정기점검 강화 절차)",
       "ietm_sla": null,
       "ietm_note": "유의한 사전 이상신호 없음 — 사전점검 절차 정의 근거 부족, 정기점검 주기 강화로 대체",
-      "warn_code": "AX-Cat3",
+      "warn_code": "AX-component_x-Cat3",
       "ecp_triggers": [
         "이상지수 조기신호가 우연 수준과 통계적으로 구분 안 됨(p=0.67553) → 진단 알고리즘/센서 고도화 필요"
       ],

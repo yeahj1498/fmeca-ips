@@ -309,7 +309,8 @@ function render(id){
   if(id==="events") wireEvents();
 }
 
-function byGroup(){ return Object.fromEntries(state.fmeca.modes.map(m=>[m.group,m])); }
+const rowKey = r => `${r.failure_mode}::${r.group}`;
+function byGroup(){ return Object.fromEntries(state.fmeca.modes.map(m=>[rowKey(m),m])); }
 
 /* ---------------- 00 OVERVIEW + FLOW ---------------- */
 function wireOverview(){
@@ -478,6 +479,7 @@ function renderFmeca(){
     <tr><td colspan="10" style="padding:0"><details class="basis"><summary>산출 근거 — ${m.label}</summary>
       <div class="basis-body"><div><b>O</b>${esc(m.O_basis)}</div><div><b>S</b>${esc(m.S_basis)}</div><div><b>D</b>${esc(m.D_basis)}</div>
       <div><b>탐지 유의성</b>${m.significant ? `우연 수준(${fmt(m.expected_rate_if_random,1)}%) 대비 통계적으로 유의(p=${m.binom_p})` : `우연 수준(${fmt(m.expected_rate_if_random,1)}%)과 통계적으로 구분 안 됨(p=${m.binom_p}) — 실질적 미검출`}</div>
+      <div><b>고장원인</b>${esc(m.failure_cause || "산출 불가 — 데이터셋에 원인 정보 없음")}</div>
       </div></details></td></tr>`).join("");
 
   const gradeBars = modes.map(m=>`
@@ -520,15 +522,15 @@ function renderFmeca(){
 
 /* ---------------- 04 RCM ---------------- */
 function renderRCM(){
-  const lc = state.lifecycle.rows; const fm = byGroup(); const compLabel = state.dataset.component_label||state.dataset.name;
+  const lc = state.lifecycle.rows; const fm = byGroup();
   const nCBM = lc.filter(r=>r.rcm_strategy.includes("CBM")).length;
   const cards = lc.map(r=>{
-    const m = fm[r.group];
+    const m = fm[rowKey(r)];
     const stratPill = r.rcm_strategy.includes("CBM") ? "ok" : r.rcm_strategy.includes("Hard") ? "gap" : "crit";
     return `
     <div class="decision-card">
       <div class="dc-head">
-        <div class="dc-comp">${r.label} <span class="cc">${esc(compLabel)}</span></div>
+        <div class="dc-comp">${r.label} <span class="cc">${esc(m.failure_mode_label)}</span></div>
         <span class="pill ${stratPill}">${r.rcm_strategy}</span>
       </div>
       <div class="dc-gates">
@@ -537,6 +539,7 @@ function renderRCM(){
         <div class="gate ${m.S_grade>=5?'no':'yes'}"><span class="g-ico">${m.S_grade>=5?'!':'·'}</span>심각도 S=${m.S_grade}</div>
       </div>
       <div class="dc-reason">${esc(r.rcm_reason)}</div>
+      <div class="dc-reason" style="color:var(--ink-faint);font-size:11.8px">고장원인: ${esc(r.failure_cause || "산출 불가 — 데이터셋에 원인 정보 없음")}</div>
       <div class="dc-foot"><span><b>우선순위</b> ${r.rcm_priority}</span><span><b>O등급</b> ${m.O_grade}</span><span><b>D등급</b> ${m.D_grade}</span></div>
     </div>`;
   }).join("");
@@ -548,9 +551,22 @@ function renderRCM(){
   </section>`;
 }
 
+/* ---------------- assumption helpers ---------------- */
+const ASSUMPTION_LABEL = {lead_days:"조달 리드타임(일)", unit_cost_krw:"단가", repair_complexity:"수리복잡도",
+  fleet_size:"가정 함대 규모(대)", daily_op_timesteps:"일일 가동(time_step 환산)"};
+function getAssumption(name){ return (state.lifecycle.assumptions||[]).find(a=>a.name===name); }
+function assumptionCards(list){
+  return list.map(a=>`
+    <div class="gap-card" style="grid-template-columns:170px 1fr;">
+      <div class="g-title"><span class="idx"></span>${esc(ASSUMPTION_LABEL[a.name]||a.name)} = <b>${a.value.toLocaleString?a.value.toLocaleString():a.value}</b></div>
+      <div class="gap-body"><div class="gap-row"><b>근거</b>${esc(a.rationale||"근거 미기재")}</div></div>
+    </div>`).join("");
+}
+
 /* ---------------- 05 LORA ---------------- */
 function renderLORA(){
-  const lc = state.lifecycle.rows; const a = state.lifecycle.assumptions; const compLabel = state.dataset.component_label||state.dataset.name;
+  const lc = state.lifecycle.rows; const compLabel = state.dataset.component_label||state.dataset.name;
+  const complexityAssumption = getAssumption("repair_complexity");
   const cards = lc.map(r=>`
     <div class="decision-card">
       <div class="dc-head"><div class="dc-comp">${r.label} <span class="cc">${esc(compLabel)}</span></div><span class="pill accent">${r.repair_complexity} 복잡도</span></div>
@@ -562,17 +578,16 @@ function renderLORA(){
     <div><div class="sec-head"><span class="sec-num">05</span><h2>LORA (수리수준분석)</h2></div>
     <p class="sec-desc">동일 물리 구성품(${esc(compLabel)})이므로 수리복잡도는 계통 공통 가정치로 고정하고, 발생도(O등급)에 따라 창정비 우선순위·예비품 전진배치 여부만 그룹별로 차등화했다.</p></div>
     <div class="decision-grid">${cards}</div>
-    <div class="card card-pad"><div class="chart-title">가정 파라미터</div>
-      <div class="prose" style="font-size:12.6px;color:var(--ink-dim)">
-        <div>수리복잡도(공통 가정): <b style="color:var(--ink)">${a.repair_complexity}</b></div>
-        <div>${a.note}</div>
-      </div></div>
+    <div class="card card-pad"><div class="chart-title">가정 파라미터 — 왜 이 값인가</div>
+      <div class="gaps">${complexityAssumption?assumptionCards([complexityAssumption]):""}</div>
+    </div>
   </section>`;
 }
 
 /* ---------------- 06 SUPPLY ---------------- */
 function renderSupply(){
-  const lc = state.lifecycle.rows; const a = state.lifecycle.assumptions;
+  const lc = state.lifecycle.rows;
+  const fleetSize = getAssumption("fleet_size")?.value || 0;
   const totalDemand = lc.reduce((s,r)=>s+r.annual_demand_units,0);
   const totalCost = lc.reduce((s,r)=>s+r.annual_cost_krw,0);
   const rows = lc.map(r=>`<tr>
@@ -585,19 +600,23 @@ function renderSupply(){
     <td class="num mono">${(r.unit_cost_krw/100000000).toFixed(2)}억</td>
     <td class="num mono">${krw(r.annual_cost_krw)}</td>
   </tr>`).join("");
+  const supplyAssumptions = ["fleet_size","daily_op_timesteps","lead_days","unit_cost_krw"].map(getAssumption).filter(Boolean);
   return `
   <section data-panel>
     <div><div class="sec-head"><span class="sec-num">06</span><h2>보급소요 산정</h2></div>
-    <p class="sec-desc">연간소요 = 실측 O등급 발생률 × 가정 함대 규모(${fmt0(a.assumed_fleet_size)}대, 4개 사양군 균등배분) × 가정 연간가동. 재주문점 = 리드타임수요 + 안전재고(서비스수준 95%, z=1.645). <b>발생률만 실측이고, 함대 규모·리드타임·단가는 이 방법론을 가상 군 정비단에 적용하는 예시를 위한 가정치다.</b></p></div>
+    <p class="sec-desc">연간소요 = 실측 O등급 발생률 × 가정 함대 규모(${fmt0(fleetSize)}대, ${lc.length}개 그룹 균등배분) × 가정 연간가동. 재주문점 = 리드타임수요 + 안전재고(서비스수준 95%, z=1.645). <b>발생률만 실측이고, 함대 규모·리드타임·단가는 이 방법론을 가상 정비단에 적용하는 예시를 위한 가정치다.</b></p></div>
     <div class="stats">
       <div class="stat accent"><span class="n">${fmt0(totalDemand)}</span><span class="l">연간 총 소요(건, 가정 함대)</span></div>
       <div class="stat gap"><span class="n">${krw(totalCost)}</span><span class="l">연간 소요예산(가정)</span></div>
-      <div class="stat"><span class="n">${fmt0(a.assumed_fleet_size)}</span><span class="l">가정 함대 규모(대)</span></div>
+      <div class="stat"><span class="n">${fmt0(fleetSize)}</span><span class="l">가정 함대 규모(대)</span></div>
     </div>
     <div class="table-wrap"><table>
-      <thead><tr><th>사양군</th><th class="num">연간소요(건)</th><th class="num">조달리드타임</th><th class="num">리드타임수요</th><th class="num">안전재고</th><th class="num">재주문점</th><th class="num">단가</th><th class="num">연간예산</th></tr></thead>
+      <thead><tr><th>그룹</th><th class="num">연간소요(건)</th><th class="num">조달리드타임</th><th class="num">리드타임수요</th><th class="num">안전재고</th><th class="num">재주문점</th><th class="num">단가</th><th class="num">연간예산</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
+    <div class="card card-pad"><div class="chart-title">가정 파라미터 — 왜 이 값인가</div>
+      <div class="gaps">${assumptionCards(supplyAssumptions)}</div>
+    </div>
   </section>`;
 }
 
@@ -701,7 +720,7 @@ function wireFeedback(){ /* comparison is shown before/after inline, nothing to 
 function renderFeedback(){
   const lc = state.lifecycle.rows; const fm = byGroup();
   const cards = lc.map(r=>{
-    const m = fm[r.group];
+    const m = fm[rowKey(r)];
     if(!r.ecp_candidate){
       return `<div class="ecp-none"><b style="color:var(--ink)">${r.label}</b> — 설계개선 트리거가 없어 재계산할 것이 없다. 현재 O=${m.O_grade} S=${m.S_grade} D=${m.D_grade}, RPN=${m.RPN}을 그대로 유지.</div>`;
     }
@@ -900,7 +919,7 @@ function transformSampleCard(sample, counters, zThresh){
   return `
   <div class="card card-pad" style="display:flex;flex-direction:column;gap:14px;">
     <div class="dc-head">
-      <div class="dc-comp">${m.group_label} · 자산 #${sample.asset_id} <span class="cc">(${ds.n_readouts}개 판독)</span></div>
+      <div class="dc-comp">${sample.failure_mode_label?esc(sample.failure_mode_label)+" · ":""}${m.group_label} · 자산 #${sample.asset_id} <span class="cc">(${ds.n_readouts}개 판독)</span></div>
       ${outcome}
     </div>
     <div>
@@ -922,7 +941,7 @@ function transformSampleCard(sample, counters, zThresh){
 }
 function renderTransform(){
   const t = state.transform;
-  const cards = t.samples.map(s => transformSampleCard(s, t.counters, t.z_thresh)).join("");
+  const cards = t.samples.map(s => transformSampleCard(s, s.counters||t.counters, t.z_thresh)).join("");
   const grpLabels = [...new Set(t.samples.map(s=>s.mapped.group_label))];
   const grpDesc = grpLabels.length===1 ? `모두 ${grpLabels[0]}의 실제 고장 자산이며, ` : "각각 다른 그룹의 실제 고장 자산이며, ";
   return `

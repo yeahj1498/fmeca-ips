@@ -28,7 +28,9 @@ python scripts/run_pipeline.py --dataset datasets/scania_component_x
 ## 다른 데이터셋 넣기
 
 `datasets/<이름>/config.yaml` 하나로 컬럼 매핑·그룹·임계값·IPS 가정치·웹앱 서술문을
-전부 정의합니다. 자세한 스키마와 이유는 [DATASET_FORMAT.md](DATASET_FORMAT.md) 참고.
+전부 정의합니다. 고장모드가 여러 개(엔진/변속기/유압계통처럼 센서 종류부터 다른 구성품들)인
+체계도 `failure_modes:` 리스트로 지원하며, 모든 IPS 가정치는 값과 함께 "왜 이 값을
+가정했는지"(rationale)를 반드시 명시합니다. 자세한 스키마와 이유는 [DATASET_FORMAT.md](DATASET_FORMAT.md) 참고.
 
 ## 저장소 구조
 
@@ -36,10 +38,10 @@ python scripts/run_pipeline.py --dataset datasets/scania_component_x
 DATASET_FORMAT.md          데이터셋 형식(계약) 문서
 scripts/
   dataset_config.py        config.yaml 로더 (공통)
-  01_pipeline.py            정제 6단계 + O/S/D + RPN/RI 계산
+  01_pipeline.py            정제 6단계 + O/S/D + RPN/RI 계산 (고장모드 여러 개면 순회 후 결합)
   02_lifecycle.py            RCM/LORA/보급소요/IETM/ECP 연계
+  04_export_transform_sample.py   고장모드별 원본→전처리 비교 샘플 자동 선정
   03_export_app_data.py      웹앱용 JSON 생성
-  04_export_transform_sample.py   원본→전처리 비교 샘플 자동 선정
   run_pipeline.py            위 4개를 순서대로 실행하는 오케스트레이터
   03_ips_feedback_linkage.js 웹앱의 피드백 재계산 로직(참고용 추출본)
 datasets/scania_component_x/

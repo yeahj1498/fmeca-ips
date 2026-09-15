@@ -1,18 +1,30 @@
 {
   "counters": [
+    "100_0",
     "171_0",
-    "666_0",
-    "427_0",
-    "837_0",
     "309_0",
-    "835_0",
     "370_0",
-    "100_0"
+    "427_0",
+    "666_0",
+    "835_0",
+    "837_0"
   ],
   "z_thresh": 2.5,
   "samples": [
     {
       "asset_id": 206,
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "counters": [
+        "171_0",
+        "666_0",
+        "427_0",
+        "837_0",
+        "309_0",
+        "835_0",
+        "370_0",
+        "100_0"
+      ],
       "raw_mapping": {
         "asset_id_field": "vehicle_id",
         "asset_id": 206,
@@ -5514,6 +5526,18 @@
     },
     {
       "asset_id": 22,
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "counters": [
+        "171_0",
+        "666_0",
+        "427_0",
+        "837_0",
+        "309_0",
+        "835_0",
+        "370_0",
+        "100_0"
+      ],
       "raw_mapping": {
         "asset_id_field": "vehicle_id",
         "asset_id": 22,

@@ -1,6 +1,9 @@
 {
   "modes": [
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat1",
       "label": "형상B",
       "n_vehicles": 5083,
@@ -31,6 +34,9 @@
       "median_lead_time": 20.0
     },
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat0",
       "label": "형상A",
       "n_vehicles": 14438,
@@ -61,6 +67,9 @@
       "median_lead_time": 14.9
     },
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat2",
       "label": "형상C",
       "n_vehicles": 2158,
@@ -91,6 +100,9 @@
       "median_lead_time": 12.5
     },
     {
+      "failure_mode": "component_x",
+      "failure_mode_label": "Component X",
+      "failure_cause": "산출 불가 — 데이터셋이 구성품·카운터의 물리적 의미를 전부 익명화해 실제 근본원인(윤활유 손실/베어링 마모 등)은 알 수 없음. 있는 것은 '이상지수가 튀었다'는 통계적 신호뿐.",
       "group": "Cat3",
       "label": "형상D",
       "n_vehicles": 1871,
@@ -121,13 +133,16 @@
       "median_lead_time": 19.2
     }
   ],
-  "spec2_case": {
-    "top_group": "Cat5",
-    "top_rate": 0.91766,
-    "top_n": 545,
-    "bottom_group": "Cat12",
-    "bottom_rate": 0.06245,
-    "bottom_n": 206,
-    "ratio": 14.69
-  }
+  "spec2_case": [
+    {
+      "failure_mode": "component_x",
+      "top_group": "Cat5",
+      "top_rate": 0.91766,
+      "top_n": 545,
+      "bottom_group": "Cat12",
+      "bottom_rate": 0.06245,
+      "bottom_n": 206,
+      "ratio": 14.69
+    }
+  ]
 }

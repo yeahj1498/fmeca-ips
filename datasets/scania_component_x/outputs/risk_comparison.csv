@@ -1,5 +1,5 @@
-group,O_grade,rate_per_1000_timesteps,S_grade,D_grade,RPN,RI_weighted,rank_RPN,rank_RI,rank_changed
-Cat1,10,0.4942,10,8,800,9.6,1,1,False
-Cat0,9,0.41409,5,8,360,7.2,2,2,False
-Cat2,5,0.29045,2,8,80,4.4,3,3,False
-Cat3,1,0.17452,1,8,8,2.4,4,4,False
+failure_mode,group,O_grade,rate_per_1000_timesteps,S_grade,D_grade,RPN,RI_weighted,rank_RPN,rank_RI,rank_changed
+component_x,Cat1,10,0.4942,10,8,800,9.6,1,1,False
+component_x,Cat0,9,0.41409,5,8,360,7.2,2,2,False
+component_x,Cat2,5,0.29045,2,8,80,4.4,3,3,False
+component_x,Cat3,1,0.17452,1,8,8,2.4,4,4,False

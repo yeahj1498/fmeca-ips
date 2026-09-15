@@ -1,48 +1,50 @@
 {
-  "01_sync": {
-    "readout_rows": 1122452,
-    "assets_in_readouts": 23550,
-    "assets_in_events": 23550,
-    "assets_in_both": 23550,
-    "readouts_per_asset_min": 5,
-    "readouts_per_asset_median": 43.0,
-    "readouts_per_asset_max": 303
-  },
-  "02_drift_removal": {
-    "method": "자산별 8개 누적 카운터의 증분율(rate) 계산 -> 해당 자산 자신의 과거 이력(마지막 판독 제외) 평균/표준편차로 z-정규화 -> 채널 |z| 평균을 종합 이상지수(anomaly_score)로 사용. 부호를 살린 평균(anomaly_signed)은 HAZOP guide word(MORE/LESS) 판정에, 채널별 %이탈(anomaly_pctdev)은 오차율 정량화에 사용",
-    "rows_total": 1122452,
-    "rows_with_anomaly_score": 1098902,
-    "negative_rate_values_clipped": 7
-  },
-  "03_segmentation": {
-    "note": "data_raw/train_tte.csv가 이미 노출시간(length_of_study_time_step)을 제공 -> 별도 구간분할 불필요.",
-    "failure_events": 2272,
-    "censored_assets": 21278
-  },
-  "04_missing_outliers": {
-    "missing_pct_by_counter_column": {
-      "171_0": 0.0,
-      "666_0": 0.004,
-      "427_0": 0.571,
-      "837_0": 0.003,
-      "309_0": 0.003,
-      "835_0": 0.003,
-      "370_0": 0.57,
-      "100_0": 0.57
+  "component_x": {
+    "01_sync": {
+      "readout_rows": 1122452,
+      "assets_in_readouts": 23550,
+      "assets_in_events": 23550,
+      "assets_in_both": 23550,
+      "readouts_per_asset_min": 5,
+      "readouts_per_asset_median": 43.0,
+      "readouts_per_asset_max": 303
     },
-    "outlier_rule": "anomaly_score(채널 평균 |z|) > 8 -> 극단치 플래그(제거 아님)",
-    "outlier_rows_flagged": 94,
-    "outlier_rows_pct": 0.0086
-  },
-  "05_code_reconciliation": {
-    "assets_in_readouts_not_in_events": 0,
-    "assets_in_events_not_in_readouts": 0,
-    "duplicate_asset_time_rows": 0
-  },
-  "06_label_definition": {
-    "positive_label": "data_raw/train_tte.csv: in_study_repair=1",
-    "n_positive_events": 2272,
-    "n_total_exposure_time_steps": 5660219.4,
-    "class_imbalance_per_1000_timesteps": 0.4014
+    "02_drift_removal": {
+      "method": "자산별 8개 누적 카운터의 증분율(rate) 계산 -> 해당 자산 자신의 과거 이력(마지막 판독 제외) 평균/표준편차로 z-정규화 -> 채널 |z| 평균을 종합 이상지수(anomaly_score)로 사용",
+      "rows_total": 1122452,
+      "rows_with_anomaly_score": 1098902,
+      "negative_rate_values_clipped": 7
+    },
+    "03_segmentation": {
+      "note": "events 파일이 이미 노출시간(length_of_study_time_step)을 제공.",
+      "failure_events": 2272,
+      "censored_assets": 21278
+    },
+    "04_missing_outliers": {
+      "missing_pct_by_counter_column": {
+        "171_0": 0.0,
+        "666_0": 0.004,
+        "427_0": 0.571,
+        "837_0": 0.003,
+        "309_0": 0.003,
+        "835_0": 0.003,
+        "370_0": 0.57,
+        "100_0": 0.57
+      },
+      "outlier_rule": "anomaly_score(채널 평균 |z|) > 8 -> 극단치 플래그(제거 아님)",
+      "outlier_rows_flagged": 94,
+      "outlier_rows_pct": 0.0086
+    },
+    "05_code_reconciliation": {
+      "assets_in_readouts_not_in_events": 0,
+      "assets_in_events_not_in_readouts": 0,
+      "duplicate_asset_time_rows": 0
+    },
+    "06_label_definition": {
+      "positive_label": "in_study_repair=1",
+      "n_positive_events": 2272,
+      "n_total_exposure_time_steps": 5660219.4,
+      "class_imbalance_per_1000_timesteps": 0.4014
+    }
   }
 }

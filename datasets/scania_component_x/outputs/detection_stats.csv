@@ -1,5 +1,5 @@
-group,n_repairs,n_detected,detection_rate_pct,mean_lead_time,median_lead_time,expected_rate_if_random_pct,binom_p,D_grade
-Cat0,1435,150,10.45,21.3,14.9,9.52,0.12419,8
-Cat1,608,72,11.84,24.1,20.0,8.6,0.0039,8
-Cat2,152,18,11.84,18.7,12.5,9.47,0.19205,8
-Cat3,77,7,9.09,19.9,19.2,10.14,0.67553,8
+failure_mode,group,n_repairs,n_detected,detection_rate_pct,mean_lead_time,median_lead_time,expected_rate_if_random_pct,binom_p,D_grade
+component_x,Cat0,1435,150,10.45,21.3,14.9,9.52,0.12419,8
+component_x,Cat1,608,72,11.84,24.1,20.0,8.6,0.0039,8
+component_x,Cat2,152,18,11.84,18.7,12.5,9.47,0.19205,8
+component_x,Cat3,77,7,9.09,19.9,19.2,10.14,0.67553,8
