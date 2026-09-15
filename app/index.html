@@ -225,17 +225,17 @@
   footer.page-foot{border-top:1px solid var(--line);padding-top:15px;font-size:11.5px;color:var(--ink-faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 </style>
 
-<div class="banner">✅ 이 앱의 O·S·D 원천 데이터는 실측(SCANIA Component X, CC BY 4.0)입니다 — 단, 공개를 위해 익명화·섭동 처리됨. 보급소요 파라미터(리드타임·단가 등)는 예시를 위한 가정치입니다.</div>
+<div class="banner" id="banner"></div>
 
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
       <div class="k">FMECA → RCM → LORA → 보급 → IETM → 설계개선</div>
-      <div class="t">SCANIA Component X 연계체계</div>
-      <div class="s">실측 트럭 함대 데이터(CC BY 4.0)로 실증한 FMECA-IPS 연계 파이프라인</div>
+      <div class="t" id="brand-title">FMECA-IPS</div>
+      <div class="s" id="brand-sub"></div>
     </div>
     <nav class="tabs" id="nav"></nav>
-    <div class="sidebar-foot">SCANIA Component X dataset · CC BY 4.0 · 실측(섭동처리)</div>
+    <div class="sidebar-foot" id="sidebar-foot"></div>
   </aside>
 
   <main class="main"><div class="content" id="content"></div></main>
@@ -259,7 +259,7 @@ const SECTIONS = [
 const GROUPS = ["시작", "입력", "분석", "연계", "참고"];
 
 const state = { dataset:null, cleansing:null, fmeca:null, events:null, lifecycle:null, transform:null,
-  evFilter:{group:"", repairOnly:"", q:""}, evSort:{key:"length_of_study_time_step", dir:-1}, evPage:1, evPageSize:20 };
+  evFilter:{group:"", repairOnly:"", q:""}, evSort:{key:"exposure_time", dir:-1}, evPage:1, evPageSize:20 };
 
 const GRADE_COLOR = g => g>=8 ? "var(--crit)" : g>=5 ? "var(--gap)" : "var(--ok)";
 const GRADE_PILL = g => g>=8 ? "crit" : g>=5 ? "gap" : "ok";
@@ -351,52 +351,42 @@ function renderOverview(){
     <div class="bar-row"><span class="lab">${c}</span>
       <div class="bar-track"><div class="bar-fill" style="width:${n/grpMax*100}%;background:var(--accent)"></div></div>
       <span class="val">${n.toLocaleString()}대</span></div>`).join("");
+  const lede = d.content?.overview_lede || `${d.source} — 자산 ${fmt0(d.n_vehicles)}개, ${d.group_col} ${d.n_groups}개 그룹을 FMECA 행으로 삼아 분석한다.`;
   return `
   <section data-panel>
     <div>
-      <div class="eyebrow">SCANIA Component X <span class="seg">·</span> 실측(CC BY 4.0, 익명화·섭동 처리) 데이터</div>
+      <div class="eyebrow">${esc(d.name)} <span class="seg">·</span> 실측(${esc(d.license)}, 익명화·섭동 처리) 데이터</div>
       <h1>실측 정비·계측데이터 한 줄이 FMECA를 거쳐 RCM·LORA·보급·IETM·설계개선까지 이어지는 과정</h1>
-      <p class="lede"><b>${d.source}</b> — 실제 SCANIA 트럭 ${fmt0(d.n_vehicles)}대의 엔진계통 구성품("Component X") 수리기록·계측데이터를 사용했다. 단일 구성품 데이터라, 차량 사양(Spec_3) 4개 그룹을 FMECA 행으로 삼아 "같은 고장모드가 사양에 따라 어떻게 달라지는가"를 분석한다. 아래 흐름도의 각 단계를 클릭하면 해당 탭으로 이동한다.</p>
+      <p class="lede">${esc(lede)}</p>
     </div>
 
     <div class="card card-pad">${flowDiagram()}</div>
 
     <div class="stats">
-      <div class="stat accent"><span class="n">${fmt0(d.n_vehicles)}</span><span class="l">차량 (4개 사양군)</span></div>
+      <div class="stat accent"><span class="n">${fmt0(d.n_vehicles)}</span><span class="l">자산 (${d.n_groups}개 그룹)</span></div>
       <div class="stat"><span class="n">${fmt0(d.n_readout_rows)}</span><span class="l">계측 로그 행</span></div>
       <div class="stat"><span class="n">${fmt0(d.total_exposure_time_steps)}</span><span class="l">총 노출 time-step</span></div>
       <div class="stat gap"><span class="n">${fmt0(d.n_repairs)}</span><span class="l">수리(고장, 분석 단위)</span></div>
     </div>
 
     <div class="card card-pad">
-      <div class="chart-title">사양군(Spec_3)별 차량 수</div>
+      <div class="chart-title">${esc(d.group_col)}별 자산 수</div>
       <div class="bars">${grpRows}</div>
-      <div class="lede" style="margin-top:10px">계측 채널(8개 누적카운터): ${d.counters.map(c=>`<code>${c}</code>`).join(" ")} · 출처: <a href="${d.source_url}" target="_blank">${d.source_url}</a> · 라이선스: ${d.license}</div>
+      <div class="lede" style="margin-top:10px">계측 채널(${d.counters.length}개 누적카운터): ${d.counters.map(c=>`<code>${esc(c)}</code>`).join(" ")} · 출처: <a href="${esc(d.source_url)}" target="_blank">${esc(d.source_url)}</a> · 라이선스: ${esc(d.license)}</div>
     </div>
   </section>`;
 }
 
 /* ---------------- 01 MAPPING ---------------- */
 function renderMapping(){
-  const rows = [
-    ["vehicle_id · Spec_3","specifications.csv","차량 식별자 · 사양(형상) 그룹","분석대상 식별키 · FMECA 행 구분 축","23,550대, 4개 범주(Cat0~Cat3)"],
-    ["length_of_study_time_step","train_tte.csv","구성품 장착 이후 경과 time-step","노출(exposure) 분모 — O = 수리건수 ÷ 노출","이미 장착시점부터 기록되어 좌측절단 없음"],
-    ["in_study_repair","train_tte.csv","Component X 교체/수리 여부(0/1)","고장모드 라벨 그 자체","2,272건 / 23,550건 (0.4% 양성)"],
-    ["time_step (readouts)","operational_readouts.csv","판독 시점(차량별 비동기)","정제 01단계 동기화 대상","차량당 5~303회, 중앙값 43회로 불균일"],
-    ["171_0…100_0 (8개 카운터)","operational_readouts.csv","누적형 계측 카운터(익명화)","S/D 관측 채널(증분율 z-점수)","96개 히스토그램 빈은 이번 실행에서 제외"],
-  ];
-  const gaps = [
-    ["부품 실명/규격(NSN급)","Component X 자체가 영업비밀로 익명화됨","실제 어떤 부품을 개선해야 하는지 알 수 없음 — 조달로 직결되지 않음"],
-    ["정비 소요공수·비용 실측치","논문에 투입인원·작업시간 필드 없음","보급소요의 리드타임·단가는 가정치 사용"],
-    ["임무·안전 영향 등급 / 동시고장 축","상용 트럭 데이터라 군사적 심각도 개념 부재, 단일 구성품이라 동시고장 개념도 성립 안 함","S(심각도)는 이상지수 단일 축만 산출"],
-    ["채널의 물리적 정의","8개 카운터·96개 히스토그램 빈 모두 익명화, 논문도 의미를 밝히지 않음","D 산출 시 '이상치 유무'만 판단 가능, 원인 설명 불가"],
-    ["운용부대/기후/임무유형","상용차량 데이터라 군 운용 변수 없음","O 층화는 차량 사양(Spec_3) 단위까지만 가능"],
-  ];
+  const d = state.dataset;
+  const rows = d.content?.mapping_rows || [];
+  const gaps = d.content?.gap_rows || [];
   return `
   <section data-panel>
     <div>
       <div class="sec-head"><span class="sec-num">01</span><h2>실측 데이터 → FMECA 매핑</h2></div>
-      <p class="sec-desc">SCANIA Component X 3개 파일의 필드가 FMECA 워크시트의 어느 칸으로 흘러가는지 명시한다. 실측 데이터임에도 여전히 남는 공백을 숨기지 않는다.</p>
+      <p class="sec-desc">${esc(d.name)} 원본 파일의 필드가 FMECA 워크시트의 어느 칸으로 흘러가는지 명시한다. 실측 데이터임에도 여전히 남는 공백을 숨기지 않는다.</p>
     </div>
     <div class="stats">
       <div class="stat ok"><span class="n">${rows.length}</span><span class="l">매핑 필드군</span></div>
@@ -500,7 +490,7 @@ function renderFmeca(){
   return `
   <section data-panel>
     <div><div class="sec-head"><span class="sec-num">03</span><h2>FMECA 워크시트</h2></div>
-    <p class="sec-desc">동일 고장모드(Component X 수리)를 4개 차량 사양군(Spec_3)으로 나눈 O·S·D 실적 계산치. 행을 펼치면 산출 근거와 탐지 유의성 검정 결과를 볼 수 있다.
+    <p class="sec-desc">동일 고장모드(${esc(state.dataset.component_label||state.dataset.name)} 수리)를 ${modes.length}개 그룹(${esc(state.dataset.group_col)})으로 나눈 O·S·D 실적 계산치. 행을 펼치면 산출 근거와 탐지 유의성 검정 결과를 볼 수 있다.
     <br><b>S(심각도) 주의</b>: 안전/가동중단/비용 같은 실제 고장결과 기록이 이 데이터셋에는 없어 진짜 심각도는 산출 불가 — 대신 고장 직전 신호이탈 강도를 대리지표로 쓰고, HAZOP guide word(<b>MORE</b>=평소보다 경고발생률 증가 / <b>LESS</b>=평소보다 감소)와 오차율(%, 기준선 대비 이탈 크기)로 그 대리지표가 무엇을 측정했는지 명시했다.</p></div>
 
     <div class="table-wrap"><table>
@@ -509,35 +499,36 @@ function renderFmeca(){
     </table></div>
 
     <div class="chart-row">
-      <div class="card card-pad"><div class="chart-title">사양군별 O·S·D 등급 (1–10)</div><div class="bars">${gradeBars}</div>
+      <div class="card card-pad"><div class="chart-title">그룹별 O·S·D 등급 (1–10)</div><div class="bars">${gradeBars}</div>
         <div class="legend"><span><span class="swatch" style="background:var(--ok)"></span>1–4</span><span><span class="swatch" style="background:var(--gap)"></span>5–7</span><span><span class="swatch" style="background:var(--crit)"></span>8–10</span></div></div>
       <div class="card card-pad"><div class="chart-title">RPN(곱셈) vs 가중합산지수</div><div class="bars">${rpnBars}</div><div style="height:8px"></div><div class="bars">${riBars}</div>
         <div class="legend"><span><span class="swatch" style="background:var(--accent)"></span>RPN</span><span><span class="swatch" style="background:var(--series-b)"></span>RI</span></div></div>
     </div>
 
-    <div class="prose"><div class="callout"><b>이번 실측 데이터에서는 순위 역전이 없다.</b> D등급이 4개 사양군 모두 동일(8)하게 나와 순위에 영향을 주지 못했고, O·S가 완전히 같은 순서로 정렬됐다 — 위험 요인들이 서로 강화하는 방향으로 실제로 작동한다는 뜻이다. 반면 4개 군 중 3개는 조기경보 탐지율이 우연 수준과 통계적으로 구분되지 않는다(§상세는 05_ips_impact.md) — 실측 데이터의 정직한 한계.</div></div>
+    ${state.dataset.content?.fmeca_finding ? `<div class="prose"><div class="callout">${esc(state.dataset.content.fmeca_finding)}</div></div>` : ""}
 
-    <div class="case-card">
-      <h3>보너스 사례 — Spec_2 극단값 (${s2.top_group} vs ${s2.bottom_group})</h3>
-      <div class="prose">주축(Spec_3) 외에 다른 사양 변수(Spec_2, 21개 범주)에서는 훨씬 더 극단적인 격차가 실측으로 관측된다. 표본 200대 이상인 그룹만 비교한 결과다.</div>
+    ${s2 ? `<div class="case-card">
+      <h3>보너스 사례 — ${esc(state.dataset.bonus_group_col||"보조그룹")} 극단값 (${s2.top_group} vs ${s2.bottom_group})</h3>
+      <div class="prose">${esc(state.dataset.content?.bonus_case_note||"")}</div>
       <div class="case-grid">
         <div class="case-box after"><div class="cb-label">${s2.top_group} (${s2.top_n}대)</div><div class="cb-value">${fmt(s2.top_rate,3)}<span style="font-size:12px;color:var(--ink-faint)"> /1000step</span></div><div class="cb-sub">최고 발생률</div></div>
         <div class="case-box before"><div class="cb-label">${s2.bottom_group} (${s2.bottom_n}대)</div><div class="cb-value">${fmt(s2.bottom_rate,3)}<span style="font-size:12px;color:var(--ink-faint)"> /1000step</span></div><div class="cb-sub">최저 발생률 — <b>${s2.ratio}배</b> 차이</div></div>
       </div>
-    </div>
+    </div>` : ""}
   </section>`;
 }
 
 /* ---------------- 04 RCM ---------------- */
 function renderRCM(){
-  const lc = state.lifecycle.rows; const fm = byGroup();
+  const lc = state.lifecycle.rows; const fm = byGroup(); const compLabel = state.dataset.component_label||state.dataset.name;
+  const nCBM = lc.filter(r=>r.rcm_strategy.includes("CBM")).length;
   const cards = lc.map(r=>{
     const m = fm[r.group];
     const stratPill = r.rcm_strategy.includes("CBM") ? "ok" : r.rcm_strategy.includes("Hard") ? "gap" : "crit";
     return `
     <div class="decision-card">
       <div class="dc-head">
-        <div class="dc-comp">${r.label} <span class="cc">Component X</span></div>
+        <div class="dc-comp">${r.label} <span class="cc">${esc(compLabel)}</span></div>
         <span class="pill ${stratPill}">${r.rcm_strategy}</span>
       </div>
       <div class="dc-gates">
@@ -552,24 +543,24 @@ function renderRCM(){
   return `
   <section data-panel>
     <div><div class="sec-head"><span class="sec-num">04</span><h2>RCM 정비전략 결정</h2></div>
-    <p class="sec-desc">고전적 RCM 결정로직을 FMECA 산출값에 그대로 적용: <b>① 상태감시로 조기 검출 가능한가</b>(이상신호 유의성 + 탐지율≥50%) → 가능하면 상태기반정비(CBM). <b>② 불가능하면 심각도가 높은가</b> → 높으면 시간기준 예방정비, 낮으면 사후정비(Run-to-Failure). 실측 데이터 결과, 4개 사양군 모두 탐지율이 12%를 넘지 못해 CBM 단독 채택 군은 없다.</p></div>
+    <p class="sec-desc">고전적 RCM 결정로직을 FMECA 산출값에 그대로 적용: <b>① 상태감시로 조기 검출 가능한가</b>(이상신호 유의성 + 탐지율≥50%) → 가능하면 상태기반정비(CBM). <b>② 불가능하면 심각도가 높은가</b> → 높으면 시간기준 예방정비, 낮으면 사후정비(Run-to-Failure). 실측 데이터 결과, ${lc.length}개 그룹 중 ${nCBM}개가 CBM 조건을 충족${nCBM===0?" — 단독 채택 군은 없다":""}.</p></div>
     <div class="decision-grid">${cards}</div>
   </section>`;
 }
 
 /* ---------------- 05 LORA ---------------- */
 function renderLORA(){
-  const lc = state.lifecycle.rows; const a = state.lifecycle.assumptions;
+  const lc = state.lifecycle.rows; const a = state.lifecycle.assumptions; const compLabel = state.dataset.component_label||state.dataset.name;
   const cards = lc.map(r=>`
     <div class="decision-card">
-      <div class="dc-head"><div class="dc-comp">${r.label} <span class="cc">Component X</span></div><span class="pill accent">${r.repair_complexity} 복잡도</span></div>
+      <div class="dc-head"><div class="dc-comp">${r.label} <span class="cc">${esc(compLabel)}</span></div><span class="pill accent">${r.repair_complexity} 복잡도</span></div>
       <div class="dc-reason"><b style="color:var(--ink)">${esc(r.lora_level)}</b></div>
       <div class="dc-reason">${esc(r.lora_reason)}</div>
     </div>`).join("");
   return `
   <section data-panel>
     <div><div class="sec-head"><span class="sec-num">05</span><h2>LORA (수리수준분석)</h2></div>
-    <p class="sec-desc">동일 물리 구성품(Component X)이므로 수리복잡도는 계통 공통 가정치로 고정하고, 발생도(O등급)에 따라 창정비 우선순위·예비품 전진배치 여부만 사양군별로 차등화했다.</p></div>
+    <p class="sec-desc">동일 물리 구성품(${esc(compLabel)})이므로 수리복잡도는 계통 공통 가정치로 고정하고, 발생도(O등급)에 따라 창정비 우선순위·예비품 전진배치 여부만 그룹별로 차등화했다.</p></div>
     <div class="decision-grid">${cards}</div>
     <div class="card card-pad"><div class="chart-title">가정 파라미터</div>
       <div class="prose" style="font-size:12.6px;color:var(--ink-dim)">
@@ -801,7 +792,7 @@ function wireEvents(){
 }
 function filteredEvents(){
   const f = state.evFilter;
-  let rows = state.events.filter(e => (!f.group||e.Spec_3===f.group) && (f.repairOnly===""||String(e.in_study_repair)===f.repairOnly) && (!f.q||String(e.vehicle_id).includes(f.q)));
+  let rows = state.events.filter(e => (!f.group||e.group===f.group) && (f.repairOnly===""||String(e.failed)===f.repairOnly) && (!f.q||String(e.asset_id).includes(f.q)));
   const {key,dir} = state.evSort;
   rows = rows.slice().sort((a,b)=>{ let av=a[key],bv=b[key]; if(typeof av==="string"&&typeof bv==="string") return av.localeCompare(bv)*dir; return ((av>bv)-(av<bv))*dir; });
   return rows;
@@ -811,12 +802,12 @@ function renderEventsTable(){
   const maxPage = Math.max(1, Math.ceil(rows.length/pageSize));
   if(state.evPage>maxPage) state.evPage=maxPage;
   const start=(state.evPage-1)*pageSize; const page = rows.slice(start,start+pageSize);
-  document.getElementById("ev-count").textContent = `${rows.length.toLocaleString()}건 표시 중 (샘플 ${state.events.length}건 — 전체 수리 2,272건 + 무고장 표본 3,000건)`;
+  document.getElementById("ev-count").textContent = `${rows.length.toLocaleString()}건 표시 중 (샘플 ${state.events.length}건 — 전체 고장 ${fmt0(state.dataset.n_repairs)}건 + 무고장 표본)`;
   document.getElementById("ev-tbody").innerHTML = page.map(e=>`<tr>
-      <td class="mono" style="color:var(--ink-faint)">${e.vehicle_id}</td>
-      <td>${e.group_label||e.Spec_3}</td>
-      <td class="num">${e.in_study_repair ? '<span class="pill crit">수리</span>' : '<span class="pill neutral">무고장</span>'}</td>
-      <td class="num mono">${fmt(e.length_of_study_time_step,1)}</td>
+      <td class="mono" style="color:var(--ink-faint)">${e.asset_id}</td>
+      <td>${e.group_label||e.group}</td>
+      <td class="num">${e.failed ? '<span class="pill crit">수리</span>' : '<span class="pill neutral">무고장</span>'}</td>
+      <td class="num mono">${fmt(e.exposure_time,1)}</td>
       <td class="num mono">${e.severity_anomaly_at_end!=null?fmt(e.severity_anomaly_at_end,3):"–"}</td>
       <td class="num mono">${e.first_flag_time_step!=null?fmt(e.first_flag_time_step,1):"–"}</td>
       <td class="num">${e.detected_within_lookback?'<span class="pill ok">탐지</span>':'<span class="pill neutral">없음</span>'}</td>
@@ -832,23 +823,24 @@ function renderEventsTable(){
   document.getElementById("ev-next").disabled = state.evPage>=maxPage;
 }
 function renderEvents(){
-  const groups = [...new Set(state.events.map(e=>e.Spec_3))].sort();
+  const d = state.dataset;
+  const groups = [...new Set(state.events.map(e=>e.group))].sort();
   return `
   <section data-panel>
     <div><div class="sec-head"><span class="sec-num">09</span><h2>사건 탐색기</h2></div>
-    <p class="sec-desc">차량 단위 원자료 표본(전체 수리 차량 2,272대 + 무고장 차량 무작위 표본 3,000대). 사양군·수리여부로 필터링하고 열 헤더를 클릭해 정렬한다.</p></div>
+    <p class="sec-desc">자산 단위 원자료 표본(전체 고장 자산 ${fmt0(d.n_repairs)}개 + 무고장 자산 무작위 표본). 그룹·고장여부로 필터링하고 열 헤더를 클릭해 정렬한다.</p></div>
     <div class="toolbar">
-      <select id="ev-group"><option value="">전체 사양군</option>${groups.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>
-      <select id="ev-repair"><option value="">수리여부 전체</option><option value="1">수리(고장)만</option><option value="0">무고장만</option></select>
-      <input id="ev-q" type="text" placeholder="차량ID 검색…">
+      <select id="ev-group"><option value="">전체 그룹</option>${groups.map(c=>`<option value="${c}">${c}</option>`).join("")}</select>
+      <select id="ev-repair"><option value="">고장여부 전체</option><option value="1">고장만</option><option value="0">무고장만</option></select>
+      <input id="ev-q" type="text" placeholder="자산ID 검색…">
       <span class="count" id="ev-count"></span>
     </div>
     <div class="table-wrap"><table>
       <thead id="ev-thead"><tr>
-        <th class="sortable" data-key="vehicle_id">차량ID<span class="arrow">▲</span></th>
-        <th class="sortable" data-key="Spec_3">사양군<span class="arrow">▲</span></th>
-        <th class="sortable" data-key="in_study_repair">수리여부<span class="arrow">▲</span></th>
-        <th class="sortable num" data-key="length_of_study_time_step">노출(time-step)<span class="arrow">▲</span></th>
+        <th class="sortable" data-key="asset_id">자산ID<span class="arrow">▲</span></th>
+        <th class="sortable" data-key="group">그룹<span class="arrow">▲</span></th>
+        <th class="sortable" data-key="failed">고장여부<span class="arrow">▲</span></th>
+        <th class="sortable num" data-key="exposure_time">노출(time-step)<span class="arrow">▲</span></th>
         <th class="sortable num" data-key="severity_anomaly_at_end">최종 이상지수<span class="arrow">▲</span></th>
         <th class="sortable num" data-key="first_flag_time_step">최초 경보시점<span class="arrow">▲</span></th>
         <th>탐지 여부</th>
@@ -865,11 +857,12 @@ function renderEvents(){
 function transformSampleCard(sample, counters, zThresh){
   const m = sample.mapped;
   const ds = sample.derived_summary;
+  const rm = sample.raw_mapping;
   const mapRows = [
-    ["vehicle_id (원본)", sample.raw_mapping.vehicle_id, "장비(차량) 식별키", sample.vehicle_id],
-    ["Spec_3 (원본, 익명 범주)", sample.raw_mapping.Spec_3, "형상(FMECA 행) 라벨", m.group_label],
-    ["in_study_repair (원본, 0/1)", sample.raw_mapping.in_study_repair, "고장모드 라벨", m.failure_label],
-    ["length_of_study_time_step (원본)", fmt(sample.raw_mapping.length_of_study_time_step,1), "노출(exposure), O의 분모", fmt(m.exposure_time_step,1)+" time-step"],
+    [`${rm.asset_id_field} (원본)`, rm.asset_id, "자산 식별키", sample.asset_id],
+    [`${rm.group_field} (원본, 익명 범주)`, rm.group, "형상(FMECA 행) 라벨", m.group_label],
+    [`${rm.label_field} (원본, 0/1)`, rm.failed, "고장모드 라벨", m.failure_label],
+    [`${rm.exposure_field} (원본)`, fmt(rm.exposure_time,1), "노출(exposure), O의 분모", fmt(m.exposure_time_step,1)+" time-step"],
   ];
   const mapTable = `<div class="table-wrap"><table>
     <thead><tr><th>원본 필드 · 값</th><th></th><th>매핑된 의미 · 값</th></tr></thead>
@@ -907,7 +900,7 @@ function transformSampleCard(sample, counters, zThresh){
   return `
   <div class="card card-pad" style="display:flex;flex-direction:column;gap:14px;">
     <div class="dc-head">
-      <div class="dc-comp">${m.group_label} · 차량 #${sample.vehicle_id} <span class="cc">(${ds.n_readouts}개 판독)</span></div>
+      <div class="dc-comp">${m.group_label} · 자산 #${sample.asset_id} <span class="cc">(${ds.n_readouts}개 판독)</span></div>
       ${outcome}
     </div>
     <div>
@@ -930,12 +923,14 @@ function transformSampleCard(sample, counters, zThresh){
 function renderTransform(){
   const t = state.transform;
   const cards = t.samples.map(s => transformSampleCard(s, t.counters, t.z_thresh)).join("");
+  const grpLabels = [...new Set(t.samples.map(s=>s.mapped.group_label))];
+  const grpDesc = grpLabels.length===1 ? `모두 ${grpLabels[0]}의 실제 고장 자산이며, ` : "각각 다른 그룹의 실제 고장 자산이며, ";
   return `
   <section data-panel>
     <div><div class="sec-head"><span class="sec-num">11</span><h2>원본 → 전처리 데이터 직접 비교</h2></div>
-    <p class="sec-desc">§02 정제 파이프라인이 요약 통계만 보여줬다면, 여기서는 실제 차량 2대의 <b>원본 판독행 전부</b>를 골라 같은 행에서 원본 값과 전처리(증분율→자기기준 z→이상지수) 결과를 나란히 보여준다. 두 차량 모두 형상B(Cat1, 함대 최고위험군)의 실제 수리 차량이며, 하나는 조기경보가 성공했고 하나는 실패했다 — 같은 변환식이 실측에서 어떻게 다른 결과로 이어지는지 원자료 그대로 확인할 수 있다.</p></div>
+    <p class="sec-desc">§02 정제 파이프라인이 요약 통계만 보여줬다면, 여기서는 실제 자산 ${t.samples.length}개의 <b>원본 판독행 전부</b>를 골라 같은 행에서 원본 값과 전처리(증분율→자기기준 z→이상지수) 결과를 나란히 보여준다. ${grpDesc}하나는 조기경보가 성공했고 하나는 실패했다 — 같은 변환식이 실측에서 어떻게 다른 결과로 이어지는지 원자료 그대로 확인할 수 있다.</p></div>
     ${cards}
-    <div class="lede">전체 파이프라인과 동일한 수식(§06)을 이 2대 차량에 대해서만 별도 재계산한 값이며, outputs/vehicle_features.csv의 같은 차량 값과 소수점까지 일치함을 확인했다.</div>
+    <div class="lede">전체 파이프라인과 동일한 수식을 이 자산들에 대해서만 별도 재계산한 값이며, outputs/vehicle_features.csv의 같은 자산 값과 소수점까지 일치함을 확인했다.</div>
   </section>`;
 }
 
@@ -945,6 +940,12 @@ function renderTransform(){
   document.getElementById("content").innerHTML = `<div class="lede">데이터 불러오는 중…</div>`;
   try{
     await loadAll();
+    const d = state.dataset;
+    document.title = `${d.name} FMECA-IPS`;
+    document.getElementById("banner").textContent = "✅ " + (d.content?.banner || `이 앱의 O·S·D 원천 데이터는 실측(${d.name}, ${d.license})입니다.`);
+    document.getElementById("brand-title").textContent = `${d.name} 연계체계`;
+    document.getElementById("brand-sub").textContent = `실측 데이터(${d.license})로 실증한 FMECA-IPS 연계 파이프라인`;
+    document.getElementById("sidebar-foot").textContent = `${d.name} dataset · ${d.license} · 실측(섭동처리)`;
     window.addEventListener("hashchange", router);
     router();
   }catch(err){

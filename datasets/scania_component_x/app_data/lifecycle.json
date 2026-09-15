@@ -5,7 +5,7 @@
     "repair_complexity": "중상",
     "assumed_fleet_size": 400,
     "service_level": "95%(z=1.645)",
-    "note": "보급소요 파라미터는 전량 가정치 -- 실측이 아님. 실측인 것은 O/S/D 등급 산출 원천 데이터."
+    "note": "리드타임·단가·복잡도·함대 규모는 이 방법론을 가상 정비단에 적용하는 예시를 위한 가정치다. 발생률(O)만 실측."
   },
   "rows": [
     {
@@ -25,7 +25,7 @@
       "reorder_point": 5.24,
       "annual_cost_krw": 353550680.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-CX-Cat1-01 (이상신호 대응 점검절차)",
+      "ietm_procedure": "IETM-SCX-Cat1-01 (이상신호 대응 점검절차)",
       "ietm_sla": 12.0,
       "ietm_note": "이상지수 임계교차(AX-Cat1) 후 12.0 time-step 이내 점검 착수 (평균 리드타임 24.1의 절반을 SLA로 설정)",
       "warn_code": "AX-Cat1",
@@ -52,7 +52,7 @@
       "reorder_point": 4.6,
       "annual_cost_krw": 296239986.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-CX-Cat0-02 (정기점검 강화 절차)",
+      "ietm_procedure": "IETM-SCX-Cat0-02 (정기점검 강화 절차)",
       "ietm_sla": null,
       "ietm_note": "유의한 사전 이상신호 없음 — 사전점검 절차 정의 근거 부족, 정기점검 주기 강화로 대체",
       "warn_code": "AX-Cat0",
@@ -78,7 +78,7 @@
       "reorder_point": 3.56,
       "annual_cost_krw": 207787930.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-CX-Cat2-02 (정기점검 강화 절차)",
+      "ietm_procedure": "IETM-SCX-Cat2-02 (정기점검 강화 절차)",
       "ietm_sla": null,
       "ietm_note": "유의한 사전 이상신호 없음 — 사전점검 절차 정의 근거 부족, 정기점검 주기 강화로 대체",
       "warn_code": "AX-Cat2",
@@ -104,7 +104,7 @@
       "reorder_point": 2.49,
       "annual_cost_krw": 124851608.0,
       "unit_cost_krw": 28000000,
-      "ietm_procedure": "IETM-CX-Cat3-02 (정기점검 강화 절차)",
+      "ietm_procedure": "IETM-SCX-Cat3-02 (정기점검 강화 절차)",
       "ietm_sla": null,
       "ietm_note": "유의한 사전 이상신호 없음 — 사전점검 절차 정의 근거 부족, 정기점검 주기 강화로 대체",
       "warn_code": "AX-Cat3",

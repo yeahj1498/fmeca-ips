@@ -1,24 +1,44 @@
 # -*- coding: utf-8 -*-
+"""Exports <dataset>/outputs/* into <dataset>/app_data/*.json for the generic
+web app (app/index.html) to fetch(). Generic across datasets -- see
+/DATASET_FORMAT.md. Also carries the dataset's config.yaml `content:` block
+through unchanged, since that narrative text is written per-dataset by hand.
+
+Usage: python 03_export_app_data.py --dataset ../datasets/scania_component_x
+"""
+import argparse
 import json
+import os
 import pandas as pd
+from dataset_config import DatasetConfig
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--dataset", required=True)
+args = ap.parse_args()
+cfg = DatasetConfig(args.dataset)
 
 ENC = "utf-8"
-APP = "app_data"
-import os
-os.makedirs(APP, exist_ok=True)
+OUT = cfg.out_dir
+APP = cfg.app_data_dir
 
-ws = pd.read_csv("outputs/fmeca_worksheet.csv", encoding=ENC)
-occ = pd.read_csv("outputs/occurrence_stats.csv", encoding=ENC)
-sev = pd.read_csv("outputs/severity_stats.csv", encoding=ENC)
-det = pd.read_csv("outputs/detection_stats.csv", encoding=ENC)
-cl = json.load(open("outputs/cleansing_stats.json", encoding="utf-8"))
-lifecycle = json.load(open("outputs/lifecycle.json", encoding="utf-8"))
-spec2_case = json.load(open("outputs/spec2_case.json", encoding="utf-8"))
-feat = pd.read_csv("outputs/vehicle_features.csv", encoding=ENC)
-tte = pd.read_csv("data_raw/train_tte.csv")
-spec = pd.read_csv("data_raw/train_specifications.csv")
+ASSET = cfg.asset_id
+EXPOSURE = cfg.exposure_time
+LABEL = cfg.failure_label
+GROUP_COL = cfg.group_col
 
-GROUP_LABEL = {"Cat0": "형상A", "Cat1": "형상B", "Cat2": "형상C", "Cat3": "형상D"}
+ws = pd.read_csv(f"{OUT}/fmeca_worksheet.csv", encoding=ENC)
+occ = pd.read_csv(f"{OUT}/occurrence_stats.csv", encoding=ENC)
+sev = pd.read_csv(f"{OUT}/severity_stats.csv", encoding=ENC)
+det = pd.read_csv(f"{OUT}/detection_stats.csv", encoding=ENC)
+cl = json.load(open(f"{OUT}/cleansing_stats.json", encoding="utf-8"))
+lifecycle = json.load(open(f"{OUT}/lifecycle.json", encoding="utf-8"))
+spec2_path = f"{OUT}/spec2_case.json"
+spec2_case = json.load(open(spec2_path, encoding="utf-8")) if os.path.exists(spec2_path) else None
+feat = pd.read_csv(f"{OUT}/vehicle_features.csv", encoding=ENC)
+events = pd.read_csv(cfg.files["events"])
+groups_df = pd.read_csv(cfg.files["groups"])
+
+GROUP_LABEL = cfg.groups
 
 occ_extra = occ[["group", "n_vehicles", "exposure_time_steps", "rate_per_1000_timesteps", "ci95_lo", "ci95_hi"]]
 sev_extra = sev[["group", "mean_severity_anomaly", "mean_signed_z", "mean_error_rate_pct", "hazop_guide_word"]]
@@ -54,29 +74,48 @@ with open(f"{APP}/cleansing.json", "w", encoding="utf-8") as f:
 with open(f"{APP}/lifecycle.json", "w", encoding="utf-8") as f:
     json.dump(lifecycle, f, ensure_ascii=False, indent=2)
 
-# vehicle-level explorer export (sampled to keep the file light: all repaired + a random sample of healthy)
-rep = feat[feat.in_study_repair == 1]
-healthy_sample = feat[feat.in_study_repair == 0].sample(n=min(3000, (feat.in_study_repair == 0).sum()), random_state=0)
+# asset-level explorer export (sampled to keep the file light: all failed + a random sample of healthy)
+rep = feat[feat[LABEL] == 1]
+healthy_sample = feat[feat[LABEL] == 0].sample(n=min(3000, (feat[LABEL] == 0).sum()), random_state=0)
 ev = pd.concat([rep, healthy_sample]).copy()
-ev_out = ev[["vehicle_id", "Spec_3", "in_study_repair", "length_of_study_time_step",
+ev_out = ev[[ASSET, GROUP_COL, LABEL, EXPOSURE,
              "severity_anomaly_at_end", "first_flag_time_step", "lead_time", "detected_within_lookback"]].copy()
-ev_out["group_label"] = ev_out.Spec_3.map(GROUP_LABEL)
+ev_out["group_label"] = ev_out[GROUP_COL].map(GROUP_LABEL)
+# rename to generic field names so the web app doesn't need to know this dataset's
+# actual column names -- see /DATASET_FORMAT.md
+ev_out = ev_out.rename(columns={ASSET: "asset_id", GROUP_COL: "group", LABEL: "failed", EXPOSURE: "exposure_time"})
 ev_out.to_json(f"{APP}/events.json", orient="records", force_ascii=False, indent=0)
 
+n_groups = len(modes)
+d = cfg.dataset
 dataset = dict(
-    source="SCANIA Component X dataset (Kharazian et al. 2025, Scientific Data)",
-    source_url="https://doi.org/10.5878/jvb5-d390",
-    license="CC BY 4.0",
-    n_vehicles=int(len(tte)),
-    n_repairs=int(tte.in_study_repair.sum()),
-    n_readout_rows=int(cl["01_sync"]["operational_readouts_rows"]),
-    total_exposure_time_steps=float(tte.length_of_study_time_step.sum()),
-    groups={GROUP_LABEL.get(k, k): int(v) for k, v in spec.Spec_3.value_counts().to_dict().items()},
-    counters=["171_0", "666_0", "427_0", "837_0", "309_0", "835_0", "370_0", "100_0"],
+    name=d["name"],
+    component_label=d.get("component_label", ""),
+    source=f"{d['name']} ({d.get('citation', '')})",
+    source_url=d.get("source_url", ""),
+    license=d.get("license", ""),
+    n_vehicles=int(len(events)),
+    n_repairs=int(events[LABEL].sum()),
+    n_readout_rows=int(cl["01_sync"]["readout_rows"]),
+    total_exposure_time_steps=float(events[EXPOSURE].sum()),
+    groups={GROUP_LABEL.get(k, k): int(v) for k, v in groups_df[GROUP_COL].value_counts().to_dict().items()},
+    counters=cfg.counters,
+    group_col=GROUP_COL,
+    bonus_group_col=cfg.bonus_group_col,
+    n_groups=n_groups,
 )
+
+def fill(template):
+    if not isinstance(template, str):
+        return template
+    return template.format(**dataset)
+
+content = {k: (fill(v) if isinstance(v, str) else v) for k, v in cfg.content.items()}
+dataset["content"] = content
+
 with open(f"{APP}/dataset.json", "w", encoding="utf-8") as f:
     json.dump(dataset, f, ensure_ascii=False, indent=2)
 
-print("dataset:", dataset)
+print("dataset:", {k: v for k, v in dataset.items() if k != "content"})
 print("modes:", len(modes), "events:", len(ev_out))
-print("OK")
+print("OK ->", APP)
